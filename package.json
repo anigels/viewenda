@@ -28,10 +28,12 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^8.0.0",
+    "@testing-library/react": "^16.3.3",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@types/react-router-dom": "^5.3.3",
     "@vitejs/plugin-react": "^5.0.0",
+    "jsdom": "^30.0.1",
     "typescript": "~5.9.3",
     "vite": "^7.0.0",
     "vite-plugin-pwa": "^1.0.0",

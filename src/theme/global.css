@@ -38,3 +38,35 @@ ion-input { --padding-top: 16px !important; --padding-bottom: 16px !important; }
 .notice { padding: 16px; border: 1px solid var(--ion-color-primary); border-radius: 12px; }
 @media (max-width: 360px) { .card-grid { grid-template-columns: 1fr; } .toolbar-title { font-size: 13px; } }
 @media (min-width: 768px) { .page-content { padding-top: 48px; } ion-tab-button { max-width: 160px; } }
+.results-grid { display: grid; gap: 18px; margin-top: 24px; grid-template-columns: minmax(0, 1fr); }
+.media-card { margin: 0; }
+.media-card ion-card-content { display: flex; align-items: center; gap: 18px; padding: 18px !important; }
+.poster { flex-shrink: 0; width: 90px; height: 135px; object-fit: cover; border-radius: 10px; background: #332941; }
+.poster-placeholder { display: grid; place-items: center; color: var(--ion-color-primary); font-weight: bold; font-size: 23px; }
+.media-copy { min-width: 0; }
+.media-copy h2 { overflow-wrap: anywhere; font-size: 19px !important; }
+.media-copy ion-button { margin: 0; --padding-start: 0; }
+.saved-title { border: 1px solid var(--cue-border); border-radius: 20px; overflow: hidden; background: var(--ion-card-background); }
+.saved-title .media-card { border: none; border-radius: 0; }
+.watchlist-controls { padding: 12px 18px; }
+.watchlist-controls ion-toggle { display: flex; min-height: 48px; align-items: center; }
+.watchlist-controls ion-select { min-height: 52px; }
+.watchlist-filters { display: grid; gap: 16px; }
+.watchlist-filters ion-toggle, .unlisted-provider { min-height: 48px; display: flex; align-items: center; }
+.pagination { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 20px; font-size: 12px; }
+.pagination ion-button { margin: 0; }
+.detail-content { max-width: 760px; padding: 24px max(20px, env(safe-area-inset-right)) max(32px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left)); margin: auto; }
+.detail-content h1 { font-size: 30px; overflow-wrap: anywhere; }
+.detail-heading { display: flex; align-items: center; gap: 20px; }
+.detail-poster { width: 100px; height: 150px; object-fit: cover; border-radius: 12px; }
+.detail-content .watchlist-controls { padding: 16px 0; border-block: 1px solid var(--cue-border); margin-bottom: 24px; }
+.provider-tags { display: flex; flex-wrap: wrap; padding: 0; gap: 8px; list-style: none; }
+.provider-tags li { background: #332941; padding: 10px 14px; border-radius: 12px; }
+.your-service { display: block; color: var(--ion-color-primary); font-size: 11px; margin-top: 4px; }
+.provider-list { max-height: 360px; overflow-y: auto; }
+.provider-list ion-item { --min-height: 56px; }
+.provider-list ion-checkbox { width: 100%; }
+.attribution { font-size: 12px; margin-top: 24px; }
+.tmdb-logo { width: 100px; height: auto; margin-top: 10px; }
+.loading-state { display: flex; gap: 12px; align-items: center; min-height: 60px; }
+@media (min-width: 700px) { .results-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

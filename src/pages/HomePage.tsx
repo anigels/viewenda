@@ -1,6 +1,7 @@
 import { IonButton, IonCard, IonCardContent, IonIcon } from '@ionic/react';
 import { arrowForwardOutline, bookmarkOutline, calendarOutline } from 'ionicons/icons';
 import { Page } from '../components/Page';
+import { localDate } from '../domain/planning';
 import { useCue } from '../hooks/useCue';
 export function HomePage() {
   const { data } = useCue();
@@ -16,8 +17,8 @@ export function HomePage() {
     <div className="section-heading"><h2>Your Cue</h2><span>Your saved collection</span></div>
     <div className="card-grid">
       <IonCard routerLink="/watchlist"><IonCardContent><IonIcon icon={bookmarkOutline} /><h2>{data?.watchlist.length ?? 0} saved titles</h2><p>A home for your next great watch.</p></IonCardContent></IonCard>
-      <IonCard routerLink="/my-week"><IonCardContent><IonIcon icon={calendarOutline} /><h2>{data?.watchPlans.length ?? 0} plans ahead</h2><p>Make room for a good story.</p></IonCardContent></IonCard>
+      <IonCard routerLink="/my-week"><IonCardContent><IonIcon icon={calendarOutline} /><h2>{data?.watchPlans.filter(plan => plan.date >= localDate()).length ?? 0} plans ahead</h2><p>Make room for a good story.</p></IonCardContent></IonCard>
     </div>
-    <p className="foundation-note">PHASE 2 · Search & watchlist</p>
+    <p className="foundation-note">PHASE 3 · Watch nights & weekly plans</p>
   </Page>;
 }

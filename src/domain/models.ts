@@ -36,8 +36,9 @@ export interface WatchNight {
   id: string;
   viewerIds: string[];
   nomineeMediaIds: MediaId[];
-  votes: Vote[]; // Future voting logic will enforce one vote per participating viewer.
+  votes: Vote[]; // At most one preferred title per participating viewer.
   selectedMediaId: MediaId | null; // Direct selection does not require votes.
+  watchPlanId?: string; // Set after scheduling; absent while this is a resumable draft.
 }
 export type AutomaticEventType = 'episode' | 'premiere' | 'release';
 export interface AutomaticEvent {

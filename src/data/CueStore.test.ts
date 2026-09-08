@@ -15,7 +15,7 @@ it('deduplicates by media type and ID without resetting status or favorites', ()
 });
 it('serializes rapid additions and profile updates without dropping either title', async () => {
   const saved = createInitialData();
-  const repository: CueRepository = { load: async () => saved, save: async (key, value) => { await new Promise(resolve => setTimeout(resolve, 5)); Object.assign(saved, { [key]: value }); } };
+  const repository: CueRepository = { load: async () => saved, saveAll: async value => { Object.assign(saved, value); }, save: async (key, value) => { await new Promise(resolve => setTimeout(resolve, 5)); Object.assign(saved, { [key]: value }); } };
   const store = new CueStore(repository);
   await store.initialize();
   await Promise.all([store.update('watchlist', items => addTitle(items, movie)), store.update('watchlist', items => addTitle(items, tv)), store.update('profile', p => ({ ...p, region: 'CA' }))]);
@@ -25,7 +25,7 @@ it('serializes rapid additions and profile updates without dropping either title
 });
 it('retains state on failed save and allows the next operation to succeed', async () => {
   const save = vi.fn().mockRejectedValueOnce(new Error('quota')).mockResolvedValue(undefined);
-  const store = new CueStore({ load: async () => createInitialData(), save });
+  const store = new CueStore({ load: async () => createInitialData(), save, saveAll: async () => {} });
   await store.initialize();
   await expect(store.update('watchlist', items => addTitle(items, movie))).rejects.toThrow('quota');
   expect(store.getSnapshot().data?.watchlist).toEqual([]);

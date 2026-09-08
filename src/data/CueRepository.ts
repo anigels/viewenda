@@ -11,6 +11,7 @@ export interface CueData {
 export interface CueRepository {
   load(): Promise<CueData>;
   save<K extends keyof CueData>(collection: K, value: CueData[K]): Promise<void>;
+  saveAll(data: CueData): Promise<void>; // Atomic snapshot for related planning changes.
 }
 export const createInitialData = (): CueData => ({
   profile: { id: 'primary', name: 'My Cue', region: 'US', selectedProviderIds: [] },

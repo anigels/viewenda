@@ -24,4 +24,15 @@ export class CueStore {
     this.queue = operation.catch(() => {});
     return operation;
   }
+  transact(transform: (data: CueData) => CueData) {
+    const operation = this.queue.then(async () => {
+      if (!this.state.data) throw new Error('Saved data is not available yet.');
+      const data = transform(this.state.data);
+      await this.repository.saveAll(data);
+      this.state = { data, error: null };
+      this.emit();
+    });
+    this.queue = operation.catch(() => {});
+    return operation;
+  }
 }

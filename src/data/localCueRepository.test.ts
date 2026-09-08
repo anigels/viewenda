@@ -1,12 +1,28 @@
 import { describe, expect, it } from 'vitest';
 import { LocalCueRepository, STORAGE_KEY } from './localCueRepository';
 import { mediaId } from '../domain/models';
+import { createInitialData } from './CueRepository';
 
 function memoryStorage() {
   const items = new Map<string, string>();
   return { getItem: (key: string) => items.get(key) ?? null, setItem: (key: string, value: string) => { items.set(key, value); } };
 }
 describe('local repository', () => {
+  it('persists related planning records together and refuses malformed planning data', async () => {
+    const storage = memoryStorage();
+    const repo = new LocalCueRepository(() => storage);
+    const data = createInitialData();
+    data.watchPlans = [{ id: 'p', media: { tmdbId: 42, mediaType: 'tv', title: 'Series', posterPath: null }, date: '2026-09-08', source: 'planTonight' }];
+    data.watchNights = [{ id: 'n', viewerIds: [data.profile.id], nomineeMediaIds: ['tv:42'], votes: [], selectedMediaId: 'tv:42', watchPlanId: 'p' }];
+    await repo.saveAll(data);
+    expect(await new LocalCueRepository(() => storage).load()).toEqual(data);
+    for (const patch of [{ viewers: [null] }, { watchPlans: [{ ...data.watchPlans[0], date: '2026-02-30' }] }, { watchNights: [{ ...data.watchNights[0], votes: null }] }]) {
+      const raw = JSON.stringify({ version: 1, data: { ...data, ...patch } });
+      storage.setItem(STORAGE_KEY, raw);
+      await expect(repo.saveAll(data)).rejects.toThrow('original data has been kept');
+      expect(storage.getItem(STORAGE_KEY)).toBe(raw);
+    }
+  });
   it('defaults to one US primary profile and persists profile changes across instances', async () => {
     const storage = memoryStorage();
     const repo = new LocalCueRepository(() => storage);

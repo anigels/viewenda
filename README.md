@@ -1,6 +1,6 @@
 # Cue
 
-Cue is a mobile-first streaming planner for finding something to watch and making plans together. This is **Phase 2: services, search and watchlist**, with live TMDB search, title details, regional availability, provider selection and local watchlist management. It is not the complete MVP.
+Cue is a mobile-first streaming planner for finding something to watch and making plans together. This is **Phase 3: watch nights and weekly plans**, building on live TMDB search, regional availability and a local watchlist. It is not the complete MVP.
 
 ## Stack and architecture
 
@@ -9,7 +9,7 @@ Ionic React 8, React 19, TypeScript, Vite 7, Ionic Router with React Router 5, C
 - `src/app/`: application composition, Ionic tabs, injected repository and shared state.
 - `src/components/`: reusable Ionic page and empty-state shell.
 - `src/features/onboarding/`: primary profile editing, provider selection and API credits.
-- `src/features/search/`, `watchlist/`, `plan-tonight/`, `calendar/`: search and watchlist features; planning and calendar remain placeholders.
+- `src/features/search/`, `watchlist/`, `plan-tonight/`, `calendar/`: search, watchlist, local watch-night planning and a weekly agenda.
 - `src/pages/`: Home.
 - `src/domain/`: framework-independent typed models, statuses, composite media IDs.
 - `src/data/`: asynchronous `CueRepository` contract and versioned localStorage adapter.
@@ -19,9 +19,9 @@ Ionic React 8, React 19, TypeScript, Vite 7, Ionic Router with React Router 5, C
 - `public/icons/`: explicitly temporary letter-C install icons.
 - `.github/workflows/web-ci.yml`: pull-request and main-push validation.
 
-The UI never calls localStorage directly. Replace `LocalCueRepository` at the composition root to introduce cloud persistence. `load` and collection `save` are asynchronous so UI callers need not change their transport assumptions. The local adapter uses `cue:data:v1` and a versioned envelope. Unknown versions, malformed envelopes, blocked storage and quota errors surface without intentionally resetting saved data. Profile provider IDs and watchlist entries are validated before use. CueStore serializes rapid UI updates and only publishes successfully persisted state. Robust schema migrations and multi-tab/cloud conflict handling remain future work.
+The UI never calls localStorage directly. Replace `LocalCueRepository` at the composition root to introduce cloud persistence. `load`, collection `save`, and atomic `saveAll` are asynchronous so UI callers need not change their transport assumptions. The local adapter uses `cue:data:v1` and a versioned envelope. Unknown versions, malformed envelopes, blocked storage and quota errors surface without intentionally resetting saved data. Profile provider IDs, watchlist entries and planning records are validated before use. CueStore serializes rapid UI updates and only publishes successfully persisted state. Robust schema migrations and multi-tab/cloud conflict handling remain future work.
 
-There is one primary Cue profile, initially US, with its own service IDs. Additional viewer profiles are separate and intended for optional Plan Tonight voting. Title-level status and favorites are independent. External media keys combine type and TMDB ID (`movie:42`, `tv:42`). Watch nights allow direct selection with no votes. Future voting logic must enforce one vote per participating viewer. A watch plan always requires a local YYYY-MM-DD date and may have an HH:mm time. Automatically discovered events are a separate model; no guessed release or episode times are created.
+There is one primary Cue profile, initially US, with its own service IDs. Additional viewer profiles are separate and intended for optional Plan Tonight voting. Title-level status and favorites are independent. External media keys combine type and TMDB ID (`movie:42`, `tv:42`). Watch nights allow direct selection with no votes. Voting enforces one vote per participating viewer; changing a vote replaces the previous choice. A watch plan always requires a local YYYY-MM-DD date and may have an HH:mm time. Automatically discovered events are a separate model; no guessed release or episode times are created.
 
 ## Local setup
 
@@ -78,7 +78,7 @@ The TMDB wrapper returns discriminated configuration/HTTP/network errors, uses a
 
 ## Intentionally unimplemented
 
-Viewer management, nominations and voting, scheduling, calendar UI and automatic event discovery; authentication, cloud sync, conflict resolution, complete storage migrations, native packaging, final icons, deployment and TestFlight automation. Search results, title details and provider availability require a connection; saved watchlist titles, statuses and independent favorites remain usable without TMDB. Poster images are not cached for offline use.
+Automatic event discovery; authentication, cloud sync, conflict resolution, complete storage migrations, native packaging, final icons, deployment and TestFlight automation. Search results, title details and provider availability require a connection; saved watchlist titles, statuses and independent favorites remain usable without TMDB. Poster images are not cached for offline use.
 
 ## Verification and references
 
@@ -116,3 +116,11 @@ Tests cover missing/failed/malformed API responses, provider merging, media-type
 ### Search-card availability
 
 Search cards show provider logos and names for the saved profile region without opening details or adding titles. Selected services sort first and are marked "Your service"; subscription, free, ad-supported, rental and purchase offers remain separate. Missing data says "Availability not reported" and network errors offer Retry. Near-visible cards load lazily, at most four provider requests run concurrently, and successful results are cached in memory for five minutes (up to 200 region/media entries). The cache is not persisted and does not cache failures. Availability remains informational and may change.
+
+## Phase 3 usage
+
+Plan Tonight starts a resumable draft. Select participants, add or remove local viewers, and nominate saved watchlist titles. Pass the device around for optional voting (one choice per viewer), or choose a title directly. Votes never automatically decide the final pick, including ties. Removing a participant or nomination clears its invalid votes. Viewers, nominations, votes and the final choice persist as you go; the date and optional time are set when saving the plan. A required local date and optional local time produce a plan in My Week. Scheduling saves the plan and completed night together in one storage write; failed writes leave the draft intact for retry.
+
+My Week also lets you add a watchlist title directly, browse Monday–Sunday weeks, jump to a date, edit a plan's date/time, or confirm removal. Clearing the time leaves it unspecified. Plans retain their original Manual / Plan Tonight source and title snapshot, even if a title is later removed from the watchlist. Removing a plan removes its linked completed night but does not change watch status, favorites or saved titles. Home counts plans dated today or later. All participants and voting use this device; no invitations or cross-device sync are implied.
+
+Phase 3 tests cover vote replacement and ties, stale nominees and viewers, direct scheduling, date/time validation, calendar boundaries, independent watchlist state, rescheduling, removal and atomic-save failure/retry. Automatic air/release-date discovery remains separate and deferred.

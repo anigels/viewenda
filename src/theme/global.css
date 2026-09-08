@@ -70,3 +70,17 @@ ion-input { --padding-top: 16px !important; --padding-bottom: 16px !important; }
 .tmdb-logo { width: 100px; height: auto; margin-top: 10px; }
 .loading-state { display: flex; gap: 12px; align-items: center; min-height: 60px; }
 @media (min-width: 700px) { .results-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.search-results { align-items: start; }
+.search-results .media-card ion-card-content { align-items: flex-start; }
+.card-availability { margin: 12px 0 6px; }
+.card-availability-note, .search-region { font-size: 12px !important; }
+.card-offer-group { margin-bottom: 10px; }
+.offer-label { font-size: 11px !important; font-weight: 650; margin-bottom: 5px !important; }
+.card-services { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.card-services li { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border: 1px solid var(--cue-border); border-radius: 8px; font-size: 11px; line-height: 1.4; max-width: 100%; overflow-wrap: anywhere; }
+.card-services img { width: 22px; height: 22px; border-radius: 4px; object-fit: contain; flex-shrink: 0; }
+.card-services small { display: block; color: var(--ion-color-primary); font-size: 10px; }
+.card-services .selected-service { border-color: var(--ion-color-primary); background: #30263e; }
+.availability-retry { color: var(--ion-color-primary); background: transparent; border: none; min-height: 44px; padding: 0 8px; text-decoration: underline; cursor: pointer; }
+@media (max-width: 420px) { .search-results .poster { width: 65px; height: 98px; } .search-results .media-card ion-card-content { gap: 12px; padding: 14px !important; } }
+.card-services li { color: var(--ion-text-color); font-size: 12px; }

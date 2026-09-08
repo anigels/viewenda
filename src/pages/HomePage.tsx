@@ -13,11 +13,11 @@ export function HomePage() {
       <p>Your next movie night starts here. Bring your people and find a shared pick.</p>
       <IonButton routerLink="/plan-tonight">Plan Tonight<IonIcon slot="end" icon={arrowForwardOutline} /></IonButton>
     </IonCardContent></IonCard>
-    <div className="section-heading"><h2>Your Cue</h2><span>Just getting started</span></div>
+    <div className="section-heading"><h2>Your Cue</h2><span>Your saved collection</span></div>
     <div className="card-grid">
       <IonCard routerLink="/watchlist"><IonCardContent><IonIcon icon={bookmarkOutline} /><h2>{data?.watchlist.length ?? 0} saved titles</h2><p>A home for your next great watch.</p></IonCardContent></IonCard>
       <IonCard routerLink="/my-week"><IonCardContent><IonIcon icon={calendarOutline} /><h2>{data?.watchPlans.length ?? 0} plans ahead</h2><p>Make room for a good story.</p></IonCardContent></IonCard>
     </div>
-    <p className="foundation-note">PHASE 1 · Foundation preview</p>
+    <p className="foundation-note">PHASE 2 · Search & watchlist</p>
   </Page>;
 }

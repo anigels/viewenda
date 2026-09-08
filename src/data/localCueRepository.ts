@@ -1,4 +1,5 @@
 import { createInitialData, type CueData, type CueRepository } from './CueRepository';
+import { watchStatuses } from '../domain/models';
 
 export const STORAGE_KEY = 'cue:data:v1';
 type StoragePort = Pick<Storage, 'getItem' | 'setItem'>;
@@ -15,8 +16,16 @@ export class LocalCueRepository implements CueRepository {
           typeof stored.data.profile.name !== 'string' ||
           typeof stored.data.profile.region !== 'string' ||
           !Array.isArray(stored.data.profile.selectedProviderIds) ||
+          !stored.data.profile.selectedProviderIds.every((id: unknown) => Number.isSafeInteger(id) && Number(id) > 0) ||
           !['viewers', 'watchlist', 'watchPlans', 'watchNights'].every(key => Array.isArray(stored.data[key]))) {
         throw new Error('Unsupported storage shape');
+      }
+      if (!stored.data.watchlist.every((item: CueData['watchlist'][number]) => item &&
+        item.media && Number.isSafeInteger(item.media.tmdbId) && item.media.tmdbId > 0 &&
+        ['movie', 'tv'].includes(item.media.mediaType) && typeof item.media.title === 'string' &&
+        (item.media.posterPath === null || typeof item.media.posterPath === 'string') &&
+        watchStatuses.includes(item.status) && typeof item.isFavorite === 'boolean' && typeof item.addedAt === 'string')) {
+        throw new Error('Unsupported watchlist shape');
       }
       return stored.data as CueData;
     } catch {

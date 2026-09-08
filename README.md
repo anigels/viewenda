@@ -112,3 +112,7 @@ Do not overwrite an existing configured .env.local. Set VITE_TMDB_BEARER_TOKEN t
 ### Phase 2 verification
 
 Tests cover missing/failed/malformed API responses, provider merging, media-type ID collisions, duplicate prevention, independent status/favorites, rapid serialized writes, failed-save recovery, and stale-response handling. Browser QA covers search/details, provider selection, reload persistence and watchlist controls using a separate mocked preview; mocked data and the test preview are not part of the shipped application. Live token verification is performed locally without logging credentials.
+
+### Search-card availability
+
+Search cards show provider logos and names for the saved profile region without opening details or adding titles. Selected services sort first and are marked "Your service"; subscription, free, ad-supported, rental and purchase offers remain separate. Missing data says "Availability not reported" and network errors offer Retry. Near-visible cards load lazily, at most four provider requests run concurrently, and successful results are cached in memory for five minutes (up to 200 region/media entries). The cache is not persisted and does not cache failures. Availability remains informational and may change.

@@ -30,6 +30,13 @@ export function weekDates(date: string) {
 export function readableDate(date: string) {
   return new Date(date + 'T12:00:00').toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
 }
+export function readableTime(time: string, locales?: Intl.LocalesArgument) {
+  const [hours, minutes] = time.split(':').map(Number);
+  // This is a local wall-clock value, not an instant. Use a fixed reference
+  // to format it without a timezone or daylight-saving conversion.
+  return new Intl.DateTimeFormat(locales, { hour: 'numeric', minute: '2-digit', timeZone: 'UTC' })
+    .format(new Date(Date.UTC(2000, 0, 1, hours, minutes)));
+}
 export function sortPlans(plans: WatchPlan[]) {
   return [...plans].sort((a, b) => a.date.localeCompare(b.date) || (a.optionalTime || '99:99').localeCompare(b.optionalTime || '99:99') || a.media.title.localeCompare(b.media.title));
 }

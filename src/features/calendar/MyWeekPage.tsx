@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Page } from '../../components/Page';
 import { ScheduleFields } from '../../components/ScheduleFields';
 import { useCue } from '../../hooks/useCue';
-import { localDate, addDays, weekDates, readableDate, sortPlans, validDate } from '../../domain/planning';
+import { localDate, addDays, weekDates, readableDate, readableTime, sortPlans, validDate } from '../../domain/planning';
 import { mediaId, type WatchPlan } from '../../domain/models';
 import { saveManualPlan, reschedulePlan, removePlan } from '../../data/planningActions';
 import type { CueData } from '../../data/CueRepository';
@@ -49,7 +49,7 @@ export function MyWeekPage() {
     {!data ? <p>Waiting for your saved plans…</p> : <>{!plans.some(plan => dates.includes(plan.date)) && <p className="notice">No plans this week. Add one above or choose a title in Plan Tonight.</p>}
       <div className="week-agenda">{dates.map(day => <section className="agenda-day" key={day}><h3>{readableDate(day)}{day === localDate() && <span className="today-badge">Today</span>}</h3>
         {!plans.some(plan => plan.date === day) && <p className="free-evening">Nothing planned.</p>}
-        {plans.filter(plan => plan.date === day).map(plan => <article className="plan-entry" key={plan.id}><p className="eyebrow">{plan.optionalTime || 'TIME NOT SET'} · {plan.source === 'planTonight' ? 'PLAN TONIGHT' : 'MANUAL PLAN'}</p><h4>{plan.media.title}</h4><p>{plan.media.mediaType === 'tv' ? 'TV show' : 'Movie'}</p>
+        {plans.filter(plan => plan.date === day).map(plan => <article className="plan-entry" key={plan.id}><p className="eyebrow">{plan.optionalTime ? readableTime(plan.optionalTime) : 'TIME NOT SET'} · {plan.source === 'planTonight' ? 'PLAN TONIGHT' : 'MANUAL PLAN'}</p><h4>{plan.media.title}</h4><p>{plan.media.mediaType === 'tv' ? 'TV show' : 'Movie'}</p>
           {editing === plan.id ? <PlanEditor plan={plan} busy={busy} onCancel={() => setEditing(null)} onSave={async (date, time) => { const success = await run(data => reschedulePlan(data, plan.id, date, time)); if (success) { setAnchor(date); setMessage('Plan updated.'); } return success; }} /> : <><IonButton fill="clear" disabled={busy} aria-label={'Edit plan for ' + plan.media.title} onClick={() => { setEditing(plan.id); setAdding(false); }}>Edit date / time</IonButton><IonButton fill="clear" color="medium" disabled={busy} aria-label={'Remove plan for ' + plan.media.title} onClick={() => void presentAlert({ header: 'Remove this plan?', message: 'The scheduled plan and its linked watch-night record will be removed. Your watchlist stays saved.', buttons: [{ text: 'Keep plan', role: 'cancel' }, { text: 'Remove plan', role: 'destructive', handler: () => { void run(data => removePlan(data, plan.id)).then(success => { if (success) setMessage('Plan removed.'); }); } }] })}>Remove</IonButton></>}
         </article>)}
       </section>)}</div>

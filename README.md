@@ -1,6 +1,8 @@
-# Cue
+# Viewenda
 
-Cue is a mobile-first streaming planner for finding something to watch and making plans together. This is **Phase 3: watch nights and weekly plans**, building on live TMDB search, regional availability and a local watchlist. It is not the complete MVP.
+Viewenda helps users find where movies and TV shows are streaming, save what they want to watch, decide what to watch alone or together, and plan their viewing lineup.
+
+**Your entertainment, all lined up.** Core areas: Search / Where to Watch, Watchlist, Plan Tonight, My Lineup / weekly planning, and streaming service selection.
 
 ## Stack and architecture
 
@@ -12,16 +14,16 @@ Ionic React 8, React 19, TypeScript, Vite 7, Ionic Router with React Router 5, C
 - `src/features/search/`, `watchlist/`, `plan-tonight/`, `calendar/`: search, watchlist, local watch-night planning and a weekly agenda.
 - `src/pages/`: Home.
 - `src/domain/`: framework-independent typed models, statuses, composite media IDs.
-- `src/data/`: asynchronous `CueRepository` contract and versioned localStorage adapter.
+- `src/data/`: asynchronous `ViewendaRepository` contract and versioned localStorage adapter.
 - `src/hooks/`: UI access to shared state.
 - `src/services/tmdb/`: central request helper, typed results, movie/TV details, multi-search, region-aware providers.
 - `src/theme/`: branding variables and responsive styles.
 - `public/icons/`: explicitly temporary letter-C install icons.
 - `.github/workflows/web-ci.yml`: pull-request and main-push validation.
 
-The UI never calls localStorage directly. Replace `LocalCueRepository` at the composition root to introduce cloud persistence. `load`, collection `save`, and atomic `saveAll` are asynchronous so UI callers need not change their transport assumptions. The local adapter uses `cue:data:v1` and a versioned envelope. Unknown versions, malformed envelopes, blocked storage and quota errors surface without intentionally resetting saved data. Profile provider IDs, watchlist entries and planning records are validated before use. CueStore serializes rapid UI updates and only publishes successfully persisted state. Robust schema migrations and multi-tab/cloud conflict handling remain future work.
+The UI never calls localStorage directly. Replace `LocalViewendaRepository` at the composition root to introduce cloud persistence. `load`, collection `save`, and atomic `saveAll` are asynchronous so UI callers need not change their transport assumptions. The local adapter uses `cue:data:v1` (an intentionally retained legacy compatibility key) and a versioned envelope. Unknown versions, malformed envelopes, blocked storage and quota errors surface without intentionally resetting saved data. Profile provider IDs, watchlist entries and planning records are validated before use. ViewendaStore serializes rapid UI updates and only publishes successfully persisted state. Robust schema migrations and multi-tab/cloud conflict handling remain future work.
 
-There is one primary Cue profile, initially US, with its own service IDs. Additional viewer profiles are separate and intended for optional Plan Tonight voting. Title-level status and favorites are independent. External media keys combine type and TMDB ID (`movie:42`, `tv:42`). Watch nights allow direct selection with no votes. Voting enforces one vote per participating viewer; changing a vote replaces the previous choice. A watch plan always requires a local YYYY-MM-DD date and may have an HH:mm time. Automatically discovered events are a separate model; no guessed release or episode times are created.
+There is one primary Viewenda profile, initially US, with its own service IDs. Additional viewer profiles are separate and intended for optional Plan Tonight voting. Title-level status and favorites are independent. External media keys combine type and TMDB ID (`movie:42`, `tv:42`). Watch nights allow direct selection with no votes. Voting enforces one vote per participating viewer; changing a vote replaces the previous choice. A watch plan always requires a local YYYY-MM-DD date and may have an HH:mm time. Automatically discovered events are a separate model; no guessed release or episode times are created.
 
 ## Local setup
 
@@ -46,13 +48,13 @@ Routes: `/home`, `/search`, `/watchlist`, `/plan-tonight`, `/my-week`, `/profile
 
 ## PWA
 
-Run `npm run build` then `npm run preview` to check the generated PWA. The development service worker is disabled to avoid stale-code confusion. Production uses a generated manifest with standalone display, Cue name, theme metadata, 192px/512px icons, and shell precaching. Authenticated TMDB responses are not runtime-cached. Updates use a waiting worker and activate after old clients close; no update banner exists yet. Deploy `dist/` over HTTPS with all app navigation paths rewritten to `index.html`. Localhost is suitable for development. Install via the browser's install UI or iOS Safari Share > Add to Home Screen. Confirm actual install/offline behavior on target devices before release.
+Run `npm run build` then `npm run preview` to check the generated PWA. The development service worker is disabled to avoid stale-code confusion. Production uses a generated manifest with standalone display, Viewenda name, theme metadata, 192px/512px icons, and shell precaching. Authenticated TMDB responses are not runtime-cached. Updates use a waiting worker and activate after old clients close; no update banner exists yet. Deploy `dist/` over HTTPS with all app navigation paths rewritten to `index.html`. Localhost is suitable for development. Install via the browser's install UI or iOS Safari Share > Add to Home Screen. Confirm actual install/offline behavior on target devices before release.
 
 The icons are plain generated letter-C **placeholders**, not final branding. Replace the 192x192 and 512x512 PNGs and 180x180 Apple touch icon before release; add a separately designed maskable icon if desired. Native app icons and splash assets must also be supplied later.
 
 ## Capacitor and iOS
 
-`capacitor.config.ts` is initialized with app name Cue, webDir `dist`, and placeholder bundle ID `com.example.cue`. Replace the bundle ID with one you control **before adding platforms or registering the app**. iOS and Android packages are installed, but generated platform projects are intentionally not included. Native directories are ignored during this web foundation; revisit that policy when native projects are adopted.
+`capacitor.config.ts` is initialized with app name Viewenda, webDir `dist`, and bundle ID `com.anigels.viewenda`. This is the intended identity for future Apple App ID registration. iOS and Android packages are installed, but generated platform projects are intentionally not included. Native directories are ignored during this web foundation; revisit that policy when native projects are adopted.
 
 On a Mac with compatible Xcode and Capacitor prerequisites:
 
@@ -119,8 +121,8 @@ Search cards show provider logos and names for the saved profile region without 
 
 ## Phase 3 usage
 
-Plan Tonight starts a resumable draft. Select participants, add or remove local viewers, and nominate saved watchlist titles. Pass the device around for optional voting (one choice per viewer), or choose a title directly. Votes never automatically decide the final pick, including ties. Removing a participant or nomination clears its invalid votes. Viewers, nominations, votes and the final choice persist as you go; the date and optional time are set when saving the plan. A required local date and optional local time produce a plan in My Week. Scheduling saves the plan and completed night together in one storage write; failed writes leave the draft intact for retry.
+Plan Tonight starts a resumable draft. Select participants, add or remove local viewers, and nominate saved watchlist titles. Pass the device around for optional voting (one choice per viewer), or choose a title directly. Votes never automatically decide the final pick, including ties. Removing a participant or nomination clears its invalid votes. Viewers, nominations, votes and the final choice persist as you go; the date and optional time are set when saving the plan. A required local date and optional local time produce a plan in My Lineup. Scheduling saves the plan and completed night together in one storage write; failed writes leave the draft intact for retry.
 
-My Week also lets you add a watchlist title directly, browse Monday–Sunday weeks, jump to a date, edit a plan's date/time, or confirm removal. Clearing the time leaves it unspecified. Plans retain their original Manual / Plan Tonight source and title snapshot, even if a title is later removed from the watchlist. Removing a plan removes its linked completed night but does not change watch status, favorites or saved titles. Home counts plans dated today or later. All participants and voting use this device; no invitations or cross-device sync are implied.
+My Lineup also lets you add a watchlist title directly, browse Monday–Sunday weeks, jump to a date, edit a plan's date/time, or confirm removal. Clearing the time leaves it unspecified. Plans retain their original Manual / Plan Tonight source and title snapshot, even if a title is later removed from the watchlist. Removing a plan removes its linked completed night but does not change watch status, favorites or saved titles. Home counts plans dated today or later. All participants and voting use this device; no invitations or cross-device sync are implied.
 
 Phase 3 tests cover vote replacement and ties, stale nominees and viewers, direct scheduling, date/time validation, calendar boundaries, independent watchlist state, rescheduling, removal and atomic-save failure/retry. Automatic air/release-date discovery remains separate and deferred.

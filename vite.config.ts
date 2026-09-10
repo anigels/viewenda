@@ -8,7 +8,7 @@ export default defineConfig({
     injectRegister: 'auto',
     includeAssets: ['icons/apple-touch-icon.png'],
     manifest: {
-      name: 'Cue', short_name: 'Cue', description: 'Your streaming plans, together.',
+      name: 'Viewenda', short_name: 'Viewenda', description: 'Your entertainment, all lined up.',
       start_url: '/', scope: '/', display: 'standalone',
       theme_color: '#121018', background_color: '#121018',
       icons: [

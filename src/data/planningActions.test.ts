@@ -1,6 +1,6 @@
 import { expect, it, vi } from 'vitest';
-import { createInitialData } from './CueRepository';
-import { CueStore } from './CueStore';
+import { createInitialData } from './ViewendaRepository';
+import { ViewendaStore } from './ViewendaStore';
 import { addTitle } from '../domain/watchlist';
 import { addDays, castVote, requireSchedule, tallyVotes, weekDates } from '../domain/planning';
 import { addViewer, changeNight, cleanNight, currentNight, removePlan, removeViewer, reschedulePlan, saveManualPlan, scheduleNight, startNight } from './planningActions';
@@ -66,7 +66,7 @@ it('validates viewer names and manual plan references', () => {
 it('keeps the whole draft after a failed atomic save and serializes a successful retry with other writes', async () => {
   const initial = draft();
   const saveAll = vi.fn().mockRejectedValueOnce(new Error('quota')).mockResolvedValue(undefined);
-  const store = new CueStore({ load: async () => initial, save: async () => {}, saveAll });
+  const store = new ViewendaStore({ load: async () => initial, save: async () => {}, saveAll });
   await store.initialize();
   const schedule = (data: typeof initial) => scheduleNight(data, 'night', 'plan', '2026-09-08', '');
   await expect(store.transact(schedule)).rejects.toThrow('quota');

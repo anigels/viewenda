@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { IonButton, IonSelect, IonSelectOption, IonToggle, useIonAlert } from '@ionic/react';
 import { mediaId, watchStatuses, type MediaReference, type WatchStatus } from '../../domain/models';
 import { addTitle, editTitle } from '../../domain/watchlist';
-import { useCue } from '../../hooks/useCue';
+import { useViewenda } from '../../hooks/useViewenda';
 export function WatchlistControls({ media, onOverlayChange }: { media: MediaReference; onOverlayChange?: (open: boolean) => void }) {
-  const { data, updateWatchlist } = useCue();
+  const { data, updateWatchlist } = useViewenda();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [presentAlert] = useIonAlert();

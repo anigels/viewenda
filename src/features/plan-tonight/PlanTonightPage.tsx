@@ -3,14 +3,14 @@ import { IonButton, IonCheckbox, IonInput, IonItem, IonList, IonSearchbar, useIo
 import { Link } from 'react-router-dom';
 import { Page } from '../../components/Page';
 import { ScheduleFields } from '../../components/ScheduleFields';
-import { useCue } from '../../hooks/useCue';
+import { useViewenda } from '../../hooks/useViewenda';
 import { allViewers, currentNight, cleanNight, changeNight, startNight, addViewer, removeViewer, scheduleNight } from '../../data/planningActions';
 import { castVote, localDate, tallyVotes } from '../../domain/planning';
 import { mediaId, type MediaId, type WatchNight } from '../../domain/models';
-import type { CueData } from '../../data/CueRepository';
+import type { ViewendaData } from '../../data/ViewendaRepository';
 
 export function PlanTonightPage() {
-  const { data, updatePlanning } = useCue();
+  const { data, updatePlanning } = useViewenda();
   const [name, setName] = useState('');
   const [query, setQuery] = useState('');
   const [date, setDate] = useState(localDate);
@@ -20,7 +20,7 @@ export function PlanTonightPage() {
   const [error, setError] = useState('');
   const [saved, setSaved] = useState('');
   const [presentAlert] = useIonAlert();
-  async function run(action: (data: CueData) => CueData) {
+  async function run(action: (data: ViewendaData) => ViewendaData) {
     if (busy) return false;
     setBusy(true); setError('');
     try { await updatePlanning(action); return true; }
@@ -38,7 +38,7 @@ export function PlanTonightPage() {
   return <Page title="Plan Tonight"><p className="eyebrow">GOOD COMPANY. GREAT STORIES.</p><h1>Make it a watch night.</h1>
     <p className="lede">A shared pick, without the endless debate. Plan on this device and pass it around if you want to vote.</p>
     {error && <p className="notice" role="alert">{error}</p>}
-    {saved && <p className="notice" role="status">{saved} <Link to="/my-week">See My Week</Link></p>}
+    {saved && <p className="notice" role="status">{saved} <Link to="/my-week">See My Lineup</Link></p>}
     {!data ? <p>Waiting for your local data…</p> : !night ? <section className="planning-panel"><h2>Who’s watching tonight?</h2><p>Start a night, choose people and nominate titles from your watchlist. Voting is optional.</p><IonButton disabled={busy} onClick={() => { setSaved(''); setDate(localDate()); setTime(''); setShowVoting(false); void run(data => startNight(data, crypto.randomUUID())); }}>Start a watch night</IonButton></section> : <>
       <p className="draft-note">Your viewers, nominations, votes and chosen title are saved as you go. Set the date and optional time when you’re ready.</p>
       <section className="planning-panel"><h2>1. Who’s joining?</h2>

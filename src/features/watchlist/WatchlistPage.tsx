@@ -6,11 +6,11 @@ import { EmptyState } from '../../components/EmptyState';
 import { MediaCard } from '../../components/MediaCard';
 import { MediaDetails } from '../search/MediaDetails';
 import { WatchlistControls } from './WatchlistControls';
-import { useCue } from '../../hooks/useCue';
+import { useViewenda } from '../../hooks/useViewenda';
 import { mediaId, watchStatuses, type MediaReference, type WatchStatus } from '../../domain/models';
 import { filterTitles } from '../../domain/watchlist';
 export function WatchlistPage() {
-  const { data } = useCue();
+  const { data } = useViewenda();
   const [query, setQuery] = useState('');
   const [status, setStatus] = useState<WatchStatus | 'all'>('all');
   const [favorites, setFavorites] = useState(false);

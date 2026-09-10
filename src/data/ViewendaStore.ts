@@ -1,11 +1,11 @@
-import type { CueData, CueRepository } from './CueRepository';
+import type { ViewendaData, ViewendaRepository } from './ViewendaRepository';
 /** Serialize rapid updates against the latest successful state. Failed saves do not change UI state. */
-export class CueStore {
-  private state: { data: CueData | null; error: string | null } = { data: null, error: null };
+export class ViewendaStore {
+  private state: { data: ViewendaData | null; error: string | null } = { data: null, error: null };
   private listeners = new Set<() => void>();
   private queue: Promise<void> = Promise.resolve();
   private initialization?: Promise<void>;
-  constructor(private repository: CueRepository) {}
+  constructor(private repository: ViewendaRepository) {}
   getSnapshot = () => this.state;
   subscribe = (listener: () => void) => { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; };
   private emit() { this.listeners.forEach(listener => listener()); }
@@ -13,7 +13,7 @@ export class CueStore {
     return this.initialization ??= this.repository.load().then(data => { this.state = { data, error: null }; this.emit(); })
       .catch(() => { this.state = { data: null, error: 'Local data is unavailable. Existing data has been kept. Check browser storage access, then reload.' }; this.emit(); });
   }
-  update<K extends keyof CueData>(key: K, transform: (value: CueData[K]) => CueData[K]) {
+  update<K extends keyof ViewendaData>(key: K, transform: (value: ViewendaData[K]) => ViewendaData[K]) {
     const operation = this.queue.then(async () => {
       if (!this.state.data) throw new Error('Saved data is not available yet.');
       const value = transform(this.state.data[key]);
@@ -24,7 +24,7 @@ export class CueStore {
     this.queue = operation.catch(() => {});
     return operation;
   }
-  transact(transform: (data: CueData) => CueData) {
+  transact(transform: (data: ViewendaData) => ViewendaData) {
     const operation = this.queue.then(async () => {
       if (!this.state.data) throw new Error('Saved data is not available yet.');
       const data = transform(this.state.data);

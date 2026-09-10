@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.example.cue', // Replace before creating signed native builds.
-  appName: 'Cue',
+  appId: 'com.anigels.viewenda',
+  appName: 'Viewenda',
   webDir: 'dist',
 };
 export default config;

@@ -3,11 +3,11 @@ import { IonButton, useIonAlert } from '@ionic/react';
 import { Link } from 'react-router-dom';
 import { Page } from '../../components/Page';
 import { ScheduleFields } from '../../components/ScheduleFields';
-import { useCue } from '../../hooks/useCue';
+import { useViewenda } from '../../hooks/useViewenda';
 import { localDate, addDays, weekDates, readableDate, readableTime, sortPlans, validDate } from '../../domain/planning';
 import { mediaId, type WatchPlan } from '../../domain/models';
 import { saveManualPlan, reschedulePlan, removePlan } from '../../data/planningActions';
-import type { CueData } from '../../data/CueRepository';
+import type { ViewendaData } from '../../data/ViewendaRepository';
 
 function PlanEditor({ plan, busy, onSave, onCancel }: { plan: WatchPlan; busy: boolean; onSave: (date: string, time: string) => Promise<boolean>; onCancel: () => void }) {
   const [date, setDate] = useState(plan.date);
@@ -15,7 +15,7 @@ function PlanEditor({ plan, busy, onSave, onCancel }: { plan: WatchPlan; busy: b
   return <form onSubmit={async event => { event.preventDefault(); if (await onSave(date, time)) onCancel(); }}><ScheduleFields date={date} time={time} onDate={setDate} onTime={setTime} disabled={busy} /><IonButton type="submit" disabled={busy}>Save changes</IonButton><IonButton fill="clear" disabled={busy} onClick={onCancel}>Cancel</IonButton></form>;
 }
 export function MyWeekPage() {
-  const { data, updatePlanning } = useCue();
+  const { data, updatePlanning } = useViewenda();
   const [anchor, setAnchor] = useState(localDate);
   const [adding, setAdding] = useState(false);
   const [selected, setSelected] = useState('');
@@ -28,14 +28,14 @@ export function MyWeekPage() {
   const [presentAlert] = useIonAlert();
   const dates = weekDates(anchor);
   const plans = sortPlans(data?.watchPlans ?? []);
-  async function run(action: (data: CueData) => CueData) {
+  async function run(action: (data: ViewendaData) => ViewendaData) {
     if (busy) return false;
     setBusy(true); setError(''); setMessage('');
     try { await updatePlanning(action); return true; }
     catch (error) { setError(error instanceof Error ? error.message : 'Could not save. Try again.'); return false; }
     finally { setBusy(false); }
   }
-  return <Page title="My Week"><p className="eyebrow">SOMETHING TO LOOK FORWARD TO</p><h1>A week worth watching.</h1><p className="lede">Your plans, at your pace. Schedule a saved title or <Link to="/plan-tonight">plan a night together</Link>.</p>
+  return <Page title="My Lineup"><p className="eyebrow">SOMETHING TO LOOK FORWARD TO</p><h1>A week worth watching.</h1><p className="lede">Your plans, at your pace. Schedule a saved title or <Link to="/plan-tonight">plan a night together</Link>.</p>
     {error && <p className="notice" role="alert">{error}</p>}{message && <p role="status">{message}</p>}
     <IonButton disabled={!data || busy} onClick={() => { setAdding(value => !value); setEditing(null); }}>{adding ? 'Close new plan' : 'Add a plan'}</IonButton>
     {adding && data && <section className="planning-panel"><h2>Plan a saved title</h2>{!data.watchlist.length ? <p><Link to="/search">Add a title to your watchlist</Link> to make a plan.</p> : <form onSubmit={async event => {

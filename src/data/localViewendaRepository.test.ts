@@ -1,21 +1,35 @@
 import { describe, expect, it } from 'vitest';
-import { LocalCueRepository, STORAGE_KEY } from './localCueRepository';
+import { LocalViewendaRepository, STORAGE_KEY } from './localViewendaRepository';
 import { mediaId } from '../domain/models';
-import { createInitialData } from './CueRepository';
+import { createInitialData } from './ViewendaRepository';
 
 function memoryStorage() {
   const items = new Map<string, string>();
   return { getItem: (key: string) => items.get(key) ?? null, setItem: (key: string, value: string) => { items.set(key, value); } };
 }
 describe('local repository', () => {
+  it('reads existing legacy storage unchanged after the product rename', async () => {
+    const storage = memoryStorage();
+    const data = createInitialData();
+    data.profile = { ...data.profile, name: 'Alex', region: 'CA', selectedProviderIds: [8] };
+    data.viewers = [{ id: 'friend', name: 'Sam' }];
+    const media = { tmdbId: 42, mediaType: 'tv' as const, title: 'Saved show', posterPath: null };
+    data.watchlist = [{ media, status: 'Watching', isFavorite: true, addedAt: '2026-09-08T00:00:00Z' }];
+    data.watchPlans = [{ id: 'p', media, date: '2026-09-10', optionalTime: '21:00', source: 'planTonight' }];
+    data.watchNights = [{ id: 'n', viewerIds: ['friend'], nomineeMediaIds: ['tv:42'], votes: [{ viewerId: 'friend', mediaId: 'tv:42' }], selectedMediaId: 'tv:42', watchPlanId: 'p' }];
+    const raw = JSON.stringify({ version: 1, data });
+    storage.setItem('cue:data:v1', raw);
+    expect(await new LocalViewendaRepository(() => storage).load()).toEqual(data);
+    expect(storage.getItem(STORAGE_KEY)).toBe(raw);
+  });
   it('persists related planning records together and refuses malformed planning data', async () => {
     const storage = memoryStorage();
-    const repo = new LocalCueRepository(() => storage);
+    const repo = new LocalViewendaRepository(() => storage);
     const data = createInitialData();
     data.watchPlans = [{ id: 'p', media: { tmdbId: 42, mediaType: 'tv', title: 'Series', posterPath: null }, date: '2026-09-08', source: 'planTonight' }];
     data.watchNights = [{ id: 'n', viewerIds: [data.profile.id], nomineeMediaIds: ['tv:42'], votes: [], selectedMediaId: 'tv:42', watchPlanId: 'p' }];
     await repo.saveAll(data);
-    expect(await new LocalCueRepository(() => storage).load()).toEqual(data);
+    expect(await new LocalViewendaRepository(() => storage).load()).toEqual(data);
     for (const patch of [{ viewers: [null] }, { watchPlans: [{ ...data.watchPlans[0], date: '2026-02-30' }] }, { watchNights: [{ ...data.watchNights[0], votes: null }] }]) {
       const raw = JSON.stringify({ version: 1, data: { ...data, ...patch } });
       storage.setItem(STORAGE_KEY, raw);
@@ -25,18 +39,18 @@ describe('local repository', () => {
   });
   it('defaults to one US primary profile and persists profile changes across instances', async () => {
     const storage = memoryStorage();
-    const repo = new LocalCueRepository(() => storage);
+    const repo = new LocalViewendaRepository(() => storage);
     const initial = await repo.load();
     expect(initial.profile.region).toBe('US');
     expect(initial.viewers).toEqual([]);
     await repo.save('profile', { ...initial.profile, region: 'CA', selectedProviderIds: [8] });
-    const loaded = await new LocalCueRepository(() => storage).load();
+    const loaded = await new LocalViewendaRepository(() => storage).load();
     expect(loaded.profile.region).toBe('CA');
     expect(loaded.profile.selectedProviderIds).toEqual([8]);
   });
   it('saves every collection without overwriting the others and keeps favorites independent', async () => {
     const storage = memoryStorage();
-    const repo = new LocalCueRepository(() => storage);
+    const repo = new LocalViewendaRepository(() => storage);
     const media = { tmdbId: 42, mediaType: 'tv' as const, title: 'Example', posterPath: null };
     await repo.save('viewers', [{ id: 'v1', name: 'Alex' }]);
     await repo.save('watchlist', [{ media, status: 'Watched', isFavorite: true, addedAt: '2026-01-01T00:00:00Z' }]);
@@ -52,14 +66,14 @@ describe('local repository', () => {
   it('preserves malformed and future-version data instead of resetting it', async () => {
     for (const raw of ['not json', JSON.stringify({ version: 2, data: {} })]) {
       const storage = memoryStorage(); storage.setItem(STORAGE_KEY, raw);
-      const repo = new LocalCueRepository(() => storage);
+      const repo = new LocalViewendaRepository(() => storage);
       await expect(repo.load()).rejects.toThrow();
       await expect(repo.save('viewers', [])).rejects.toThrow();
       expect(storage.getItem(STORAGE_KEY)).toBe(raw);
     }
   });
   it('surfaces storage access and quota failures', async () => {
-    const repo = new LocalCueRepository(() => ({ getItem: () => null, setItem: () => { throw new Error('Quota exceeded'); } }));
+    const repo = new LocalViewendaRepository(() => ({ getItem: () => null, setItem: () => { throw new Error('Quota exceeded'); } }));
     await expect(repo.save('viewers', [])).rejects.toThrow('Quota exceeded');
   });
 });

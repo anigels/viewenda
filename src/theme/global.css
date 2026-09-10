@@ -113,3 +113,6 @@ ion-input { --padding-top: 16px !important; --padding-bottom: 16px !important; }
 .free-evening { font-size: 13px; }
 .schedule-fields { margin: 18px 0 !important; }
 @media (max-width: 420px) { .planning-panel { padding: 16px; } }
+
+.upcoming-tv summary { min-height: 44px; padding: 12px 0; cursor: pointer; }
+.upcoming-tv .plan-entry a { display: inline-flex; align-items: center; min-height: 44px; }

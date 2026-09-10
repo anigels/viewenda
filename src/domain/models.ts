@@ -17,11 +17,14 @@ export interface MediaReference {
 export const mediaId = (media: MediaReference): MediaId => `${media.mediaType}:${media.tmdbId}`;
 export const watchStatuses = ['Want to Watch', 'Watching', 'Waiting for Next Episode', 'Watched'] as const;
 export type WatchStatus = typeof watchStatuses[number];
+export interface EpisodePosition { season: number; number: number }
+export interface EpisodeReference extends EpisodePosition { name?: string; airDate?: string }
 export interface WatchlistItem {
   media: MediaReference;
   status: WatchStatus;
   isFavorite: boolean;
   addedAt: string; // ISO timestamp
+  lastCompletedEpisode?: EpisodePosition | null; // Absent: unknown; null: explicitly not started.
 }
 export type WatchPlanSource = 'manual' | 'planTonight';
 export interface WatchPlan {
@@ -30,6 +33,7 @@ export interface WatchPlan {
   date: string; // Local calendar date: YYYY-MM-DD (required)
   optionalTime?: string; // Local time: HH:mm; never inferred
   source: WatchPlanSource;
+  episode?: EpisodeReference; // Optional; existing title-level plans stay unchanged.
 }
 export interface Vote { viewerId: string; mediaId: MediaId }
 export interface WatchNight {

@@ -1,4 +1,6 @@
 import type { MediaReference, MediaType } from '../../domain/models';
+import { validDate } from '../../domain/planning';
+import type { EpisodeReference } from '../../domain/models';
 export type TmdbResult<T> = { ok: true; data: T } | { ok: false; error: { kind: 'configuration' | 'http' | 'network' | 'response'; message: string; status?: number } };
 export interface Provider { provider_id: number; provider_name: string; logo_path: string | null; display_priority: number }
 export interface ProviderAvailability { link: string; flatrate?: Provider[]; rent?: Provider[]; buy?: Provider[]; free?: Provider[]; ads?: Provider[] }
@@ -47,6 +49,18 @@ export class TmdbClient {
   tvDetails(id: number): Promise<TmdbResult<TvDetails>> {
     if (!positiveId(id)) return Promise.resolve(invalid());
     return this.request('/tv/' + id, {}, v => object(v) && v.id === id && typeof v.name === 'string' && typeof v.overview === 'string' && imagePath(v.poster_path));
+  }
+  async tvSeasons(id: number): Promise<TmdbResult<number[]>> {
+    if (!positiveId(id)) return invalid();
+    const response = await this.request<{ seasons: { season_number: number }[] }>('/tv/' + id, {}, v => object(v) && v.id === id && Array.isArray(v.seasons) && v.seasons.every(s => object(s) && Number.isSafeInteger(s.season_number) && Number(s.season_number) >= 0));
+    return response.ok ? { ok: true, data: [...new Set(response.data.seasons.map(s => s.season_number).filter(n => n > 0))].sort((a, b) => a - b) } : response;
+  }
+  async seasonEpisodes(id: number, season: number): Promise<TmdbResult<EpisodeReference[]>> {
+    if (!positiveId(id) || !positiveId(season)) return invalid();
+    const response = await this.request<{ episodes: { season_number: number; episode_number: number; name?: string | null; air_date?: string | null }[] }>('/tv/' + id + '/season/' + season, {}, v => object(v) && v.season_number === season && Array.isArray(v.episodes) && v.episodes.every(e => object(e) && e.season_number === season && positiveId(e.episode_number) && (e.name == null || typeof e.name === 'string') && (e.air_date == null || e.air_date === '' || typeof e.air_date === 'string' && validDate(e.air_date))));
+    if (!response.ok) return response;
+    const episodes = response.data.episodes.map(e => ({ season, number: e.episode_number, ...(e.name ? { name: e.name } : {}), ...(e.air_date ? { airDate: e.air_date } : {}) }));
+    return { ok: true, data: [...new Map(episodes.map(e => [e.number, e])).values()].sort((a, b) => a.number - b.number) };
   }
   async details(media: MediaReference): Promise<TmdbResult<TitleDetails>> {
     if (media.mediaType === 'movie') { const r = await this.movieDetails(media.tmdbId); return r.ok ? { ok: true, data: { overview: r.data.overview, date: dateOnly(r.data.release_date), runtime: r.data.runtime } } : r; }

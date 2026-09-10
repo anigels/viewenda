@@ -1,6 +1,7 @@
 import type { ViewendaData } from './ViewendaRepository';
 import { mediaId, type WatchNight, type WatchPlan } from '../domain/models';
 import { normalizeNight, requireSchedule } from '../domain/planning';
+import { validEpisode } from '../domain/episodes';
 
 export const allViewers = (data: ViewendaData) => [{ id: data.profile.id, name: data.profile.name }, ...data.viewers];
 export const currentNight = (data: ViewendaData) => data.watchNights.find(night => !night.watchPlanId);
@@ -41,6 +42,10 @@ export function scheduleNight(data: ViewendaData, nightId: string, planId: strin
 }
 export function saveManualPlan(data: ViewendaData, plan: WatchPlan): ViewendaData {
   requireSchedule(plan.date, plan.optionalTime ?? '');
+  if (plan.episode) {
+    if (plan.media.mediaType !== 'tv' || !validEpisode(plan.episode)) throw new Error('Choose a valid TV episode.');
+    if (data.watchPlans.some(item => mediaId(item.media) === mediaId(plan.media) && item.date === plan.date && item.episode?.season === plan.episode?.season && item.episode?.number === plan.episode?.number)) throw new Error('This episode is already in your lineup for that date.');
+  }
   if (!data.watchlist.some(item => mediaId(item.media) === mediaId(plan.media))) throw new Error('That title is no longer in your watchlist.');
   if (data.watchPlans.some(item => item.id === plan.id)) throw new Error('This plan is already saved.');
   return { ...data, watchPlans: [...data.watchPlans, { ...plan, source: 'manual' }] };
@@ -48,6 +53,8 @@ export function saveManualPlan(data: ViewendaData, plan: WatchPlan): ViewendaDat
 export function reschedulePlan(data: ViewendaData, id: string, date: string, time: string): ViewendaData {
   requireSchedule(date, time);
   if (!data.watchPlans.some(plan => plan.id === id)) throw new Error('This plan no longer exists.');
+  const current = data.watchPlans.find(plan => plan.id === id)!;
+  if (current.episode && data.watchPlans.some(plan => plan.id !== id && mediaId(plan.media) === mediaId(current.media) && plan.date === date && plan.episode?.season === current.episode?.season && plan.episode?.number === current.episode?.number)) throw new Error('This episode is already in your lineup for that date.');
   return { ...data, watchPlans: data.watchPlans.map(plan => {
     if (plan.id !== id) return plan;
     const { optionalTime: _oldTime, ...rest } = plan;

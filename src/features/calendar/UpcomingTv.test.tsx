@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+vi.mock('../../components/EpisodePlan', () => ({ EpisodePlan: () => null }));
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';

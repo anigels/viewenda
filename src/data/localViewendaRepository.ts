@@ -1,6 +1,7 @@
 import { createInitialData, type ViewendaData, type ViewendaRepository } from './ViewendaRepository';
 import { watchStatuses } from '../domain/models';
 import { validDate, validTime } from '../domain/planning';
+import { validEpisode, validPosition } from '../domain/episodes';
 
 // Retained legacy key: branding must not reset existing local data.
 export const STORAGE_KEY = 'cue:data:v1';
@@ -40,6 +41,10 @@ export class LocalViewendaRepository implements ViewendaRepository {
             night.votes.every(vote => vote && typeof vote.viewerId === 'string' && typeof vote.mediaId === 'string') &&
             (night.selectedMediaId === null || typeof night.selectedMediaId === 'string') && (night.watchPlanId === undefined || typeof night.watchPlanId === 'string'))) {
         throw new Error('Unsupported planning shape');
+      }
+      if (!stored.data.watchlist.every((item: ViewendaData['watchlist'][number]) => item.lastCompletedEpisode === undefined || item.media.mediaType === 'tv' && (item.lastCompletedEpisode === null || validPosition(item.lastCompletedEpisode))) ||
+          !stored.data.watchPlans.every((plan: ViewendaData['watchPlans'][number]) => plan.episode === undefined || plan.media.mediaType === 'tv' && validEpisode(plan.episode))) {
+        throw new Error('Unsupported episode data');
       }
       return stored.data as ViewendaData;
     } catch {

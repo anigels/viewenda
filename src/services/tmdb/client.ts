@@ -20,15 +20,15 @@ function safeTmdbLink(value: unknown) {
   if (typeof value !== 'string') return false;
   try { const url = new URL(value); return url.protocol === 'https:' && url.hostname === 'www.themoviedb.org' && !url.username && !url.password; } catch { return false; }
 }
-/** Vite values are PUBLIC in browser bundles. Use a credential proxy before production. */
+/** App requests use the same-origin proxy. Explicit tokens are for adapter tests only. */
 export class TmdbClient {
-  constructor(private readonly token = import.meta.env.VITE_TMDB_BEARER_TOKEN ?? '', private readonly fetcher: typeof fetch = (input, init) => fetch(input, init)) {}
+  constructor(private readonly token: string | null = null, private readonly fetcher: typeof fetch = (input, init) => fetch(input, init)) {}
   private async request<T>(path: string, params: Record<string, string>, valid: (value: unknown) => boolean): Promise<TmdbResult<T>> {
-    if (!this.token.trim() || this.token === 'your_tmdb_read_access_token_here') return { ok: false, error: { kind: 'configuration', message: 'The movie search connection has not been set up yet. Your saved watchlist is still available.' } };
-    const url = new URL('https://api.themoviedb.org/3' + path);
+    if (this.token !== null && (!this.token.trim() || this.token === 'your_tmdb_read_access_token_here')) return { ok: false, error: { kind: 'configuration', message: 'The movie search connection has not been set up yet. Your saved watchlist is still available.' } };
+    const url = new URL(this.token === null ? '/api/tmdb' + path : 'https://api.themoviedb.org/3' + path, globalThis.location?.origin ?? 'http://localhost');
     Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
     try {
-      const response = await this.fetcher(url, { headers: { Authorization: 'Bearer ' + this.token, Accept: 'application/json' }, signal: AbortSignal.timeout(15000) });
+      const response = await this.fetcher(url, { headers: { ...(this.token === null ? {} : { Authorization: 'Bearer ' + this.token }), Accept: 'application/json' }, signal: AbortSignal.timeout(15000) });
       if (!response.ok) return { ok: false, error: { kind: 'http', status: response.status, message: response.status === 401 || response.status === 403 ? 'The movie service could not authorize this connection.' : response.status === 429 ? 'The movie service is busy. Please wait a moment and try again.' : 'The movie service is unavailable. Please try again later.' } };
       let body: unknown;
       try { body = await response.json(); } catch { return invalid(); }

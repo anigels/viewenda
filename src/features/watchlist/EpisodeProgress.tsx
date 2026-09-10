@@ -8,6 +8,7 @@ import { nextToWatch } from '../../services/tmdb/nextToWatch';
 import { useRemote } from '../../hooks/useRemote';
 import { useViewenda } from '../../hooks/useViewenda';
 import { RemoteFeedback } from '../../components/RemoteFeedback';
+import { CompleteEpisode } from '../../components/CompleteEpisode';
 import { EpisodePlan } from '../../components/EpisodePlan';
 
 function NextEpisode({ item }: { item: WatchlistItem }) {
@@ -18,7 +19,7 @@ function NextEpisode({ item }: { item: WatchlistItem }) {
     {result.data === null && <p>No later episode is currently listed. This does not mean the series has ended.</p>}
     {result.data && <><p>{episodeLabel(result.data)}{result.data.name ? ' · ' + result.data.name : ''}</p>
       <p>{result.data.airDate ? (result.data.airDate > localDate() ? 'Upcoming air date: ' : 'Reported air date: ') + result.data.airDate : 'Air date not reported.'}</p>
-      <EpisodePlan key={result.data.season + ':' + result.data.number} media={item.media} episode={result.data} /></>}
+      <CompleteEpisode key={"complete:" + result.data.season + ":" + result.data.number} media={item.media} episode={result.data} /><EpisodePlan key={result.data.season + ':' + result.data.number} media={item.media} episode={result.data} /></>}
   </section>;
 }
 function SeasonProgress({ media, season, busy, onSave }: { media: MediaReference; season: number; busy: boolean; onSave: (last: EpisodePosition | null) => Promise<void> }) {

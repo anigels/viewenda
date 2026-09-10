@@ -17,3 +17,12 @@ export function saveProgress(items: WatchlistItem[], media: MediaReference, last
   if (!items.some(item => mediaId(item.media) === mediaId(media))) throw new Error('This show is no longer saved.');
   return items.map(item => mediaId(item.media) === mediaId(media) ? { ...item, lastCompletedEpisode: last } : item);
 }
+
+// Quick completion can advance progress, but an older plan must never rewind it.
+export function completeEpisode(items: WatchlistItem[], media: MediaReference, episode: EpisodePosition) {
+  if (media.mediaType !== 'tv' || !validPosition(episode)) throw new Error('Choose a valid TV episode.');
+  const item = items.find(item => mediaId(item.media) === mediaId(media));
+  if (!item) throw new Error('This show is no longer saved.');
+  if (item.lastCompletedEpisode && !afterEpisode(episode, item.lastCompletedEpisode)) return items;
+  return saveProgress(items, media, { season: episode.season, number: episode.number });
+}

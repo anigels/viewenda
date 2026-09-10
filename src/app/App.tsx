@@ -10,6 +10,7 @@ import { WatchlistPage } from '../features/watchlist/WatchlistPage';
 import { PlanTonightPage } from '../features/plan-tonight/PlanTonightPage';
 import { MyWeekPage } from '../features/calendar/MyWeekPage';
 import { ProfilePage } from '../features/onboarding/ProfilePage';
+import { AppUpdate } from '../components/AppUpdate';
 setupIonicReact();
 const repository = new LocalViewendaRepository();
 const tabs = [
@@ -32,5 +33,5 @@ export default function App() {
       <Route><Redirect to="/home" /></Route>
     </IonRouterOutlet>
     <IonTabBar slot="bottom">{tabs.map(tab => <IonTabButton key={tab.path} tab={tab.path.slice(1)} href={tab.path}><IonIcon icon={tab.icon} /><IonLabel>{tab.label}</IonLabel></IonTabButton>)}</IonTabBar>
-  </IonTabs></IonReactRouter></ViewendaProvider></IonApp>;
+  </IonTabs></IonReactRouter><AppUpdate /></ViewendaProvider></IonApp>;
 }

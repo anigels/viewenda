@@ -22,7 +22,6 @@ export function EpisodePlan({ media, episode }: { media: MediaReference; episode
       catch (error) { setError(error instanceof Error ? error.message : 'Could not save this plan. Try again.'); }
       finally { setBusy(false); }
     }}>
-      <p>{episodeLabel(episode)}{episode.name ? ' · ' + episode.name : ''}</p>
       <p>Choose when you want to watch. A reported air date does not guarantee availability on your service.</p>
       <ScheduleFields date={date} time={time} onDate={setDate} onTime={setTime} disabled={busy} />
       <IonButton type="submit" disabled={busy}>Save episode plan</IonButton><IonButton fill="clear" disabled={busy} onClick={() => setOpen(false)}>Cancel</IonButton>

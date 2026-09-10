@@ -5,6 +5,7 @@ import { RemoteFeedback } from '../../components/RemoteFeedback';
 import { useViewenda } from '../../hooks/useViewenda';
 import { useRemote } from '../../hooks/useRemote';
 import { tmdb } from '../../services/tmdb';
+import { BackupSettings } from './BackupSettings';
 function ProviderPicker({ region, selected, onChange, disabled }: { region: string; selected: number[]; onChange: (ids: number[]) => void; disabled: boolean }) {
   const [query, setQuery] = useState('');
   const loader = useCallback(() => tmdb.allProviders(region), [region]);
@@ -43,6 +44,7 @@ export function ProfilePage() {
       {data && /^[A-Z]{2}$/.test(normalizedRegion) && <ProviderPicker key={normalizedRegion} region={normalizedRegion} selected={selected} onChange={setSelected} disabled={saving} />}
       <IonButton type="submit" expand="block" disabled={!data || saving}>{saving ? 'Saving…' : 'Save profile'}</IonButton><p role="status" aria-live="polite">{message}</p>
     </form>
+    <BackupSettings />
     <section className="attribution"><h2>Credits</h2><a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer"><img className="tmdb-logo" src="/tmdb-logo.svg" alt="TMDB" /></a><p>This product uses the TMDB API but is not endorsed or certified by TMDB.</p><p>Streaming availability data by <a href="https://www.justwatch.com/" target="_blank" rel="noopener noreferrer">JustWatch</a>.</p></section>
   </Page>;
 }

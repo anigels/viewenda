@@ -157,3 +157,11 @@ Use **Mark watched** on an episode plan in My Lineup or on **Next to watch**. Co
 Production previews and installed PWAs now offer **Update and reload** when an updated app is ready. **Later** dismisses the prompt for the current session. New updates are detected by the browser's service-worker lifecycle, including on page navigation/reload; there is no continuous polling. The first build containing this feature still needs to replace any older cached build before the prompt is available. Real device install and update-cycle QA remains necessary before release.
 
 Validation adds confirmation/cancel, save failure/retry, non-regressing episode progress, and update prompt interaction coverage.
+
+## Phase 7: local backup and restore
+
+Services / Profile includes **Backup & restore**. Download a JSON copy of saved profile/services, viewers, watchlist/favorites, episode progress, plans and watch nights. Copy it to another browser/device and choose it there to review the profile and collection counts. Restoring replaces all local saved data; it does not merge collections. Confirmation is required and exporting the current data first is recommended. Unsaved form edits and TMDB credentials are not exported.
+
+Backups use a Viewenda/version-1 envelope and a 5 MB limit. Import reuses the local adapter's schema validation and rejects duplicate record identities and unknown versions before offering restore. Replacement is a single repository write, and failed writes leave the current store intact. A stale preview is rejected if this app's saved state changes before confirmation. Cross-tab conflict handling remains future work: keep other Viewenda tabs closed during restore. No cloud account, upload or synchronization is involved. Browser download/file-picker behavior should be checked on target mobile devices before release.
+
+Tests cover round-trip persistence, malformed/unsupported data, duplicate IDs, stale previews, failed storage writes, preview cancellation and confirmed replacement.

@@ -120,3 +120,17 @@ ion-input { --padding-top: 16px !important; --padding-bottom: 16px !important; }
 .episode-progress summary { min-height: 44px; padding: 12px 0; cursor: pointer; }
 .episode-progress { margin-top: 14px; }
 .episode-plan { margin: 12px 0; }
+.app-update {
+  position: fixed;
+  z-index: 10000;
+  top: calc(env(safe-area-inset-top, 0px) + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(440px, calc(100% - 24px));
+  padding: 16px;
+  border: 1px solid var(--ion-color-primary);
+  border-radius: 16px;
+  background: var(--ion-background-color, #121018);
+  box-shadow: 0 8px 32px #0008;
+}
+.app-update p { margin: 0 0 8px; }

@@ -48,7 +48,7 @@ Routes: `/home`, `/search`, `/watchlist`, `/plan-tonight`, `/my-week`, `/profile
 
 ## PWA
 
-Run `npm run build` then `npm run preview` to check the generated PWA. The development service worker is disabled to avoid stale-code confusion. Production uses a generated manifest with standalone display, Viewenda name, theme metadata, 192px/512px icons, and shell precaching. Authenticated TMDB responses are not runtime-cached. Updates use a waiting worker and activate after old clients close; no update banner exists yet. Deploy `dist/` over HTTPS with all app navigation paths rewritten to `index.html`. Localhost is suitable for development. Install via the browser's install UI or iOS Safari Share > Add to Home Screen. Confirm actual install/offline behavior on target devices before release.
+Run `npm run build` then `npm run preview` to check the generated PWA. The development service worker is disabled to avoid stale-code confusion. Production uses a generated manifest with standalone display, Viewenda name, theme metadata, 192px/512px icons, and shell precaching. Authenticated TMDB responses are not runtime-cached. Updates show an Update and reload prompt when a new worker is waiting. Save open edits first, or choose Later to continue this session. Saved local data is retained; unsaved forms are not restored after reload. Deploy `dist/` over HTTPS with all app navigation paths rewritten to `index.html`. Localhost is suitable for development. Install via the browser's install UI or iOS Safari Share > Add to Home Screen. Confirm actual install/offline behavior on target devices before release.
 
 The icons are plain generated letter-C **placeholders**, not final branding. Replace the 192x192 and 512x512 PNGs and 180x180 Apple touch icon before release; add a separately designed maskable icon if desired. Native app icons and splash assets must also be supplied later.
 
@@ -149,3 +149,11 @@ Plans keep their season/episode and optional title/date snapshot when reschedule
 Storage retains its existing envelope and compatibility key. Optional lastCompletedEpisode on watchlist items is absent for unknown progress, null for not started, or a season/number pair. Optional episode on plans records a regular season/number plus optional name/airDate. Older records load unchanged; new fields are validated before use, and invalid data is preserved rather than overwritten.
 
 The [TMDB season-details endpoint](https://developer.themoviedb.org/reference/tv-season-details) supplies the episode lists. Tests cover compatibility, progress persistence, malformed fields/dates, season boundaries, missing episodes, lookup failure, episode-plan preservation and duplicate prevention.
+
+## Phase 6: daily viewing and app updates
+
+Use **Mark watched** on an episode plan in My Lineup or on **Next to watch**. Confirming advances your sequential regular-episode progress, including earlier episodes. An older plan never rewinds later progress. The plan remains visible with a Watched indicator; show status and favorites stay unchanged. Use Episodes & progress to correct a position manually. Plans for shows removed from the watchlist do not offer completion. No new storage fields are required, and completion works offline for saved episodes.
+
+Production previews and installed PWAs now offer **Update and reload** when an updated app is ready. **Later** dismisses the prompt for the current session. New updates are detected by the browser's service-worker lifecycle, including on page navigation/reload; there is no continuous polling. The first build containing this feature still needs to replace any older cached build before the prompt is available. Real device install and update-cycle QA remains necessary before release.
+
+Validation adds confirmation/cancel, save failure/retry, non-regressing episode progress, and update prompt interaction coverage.

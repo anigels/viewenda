@@ -1,7 +1,7 @@
 export type MediaType = 'movie' | 'tv';
 /** Composite key avoids collisions between movie and TV IDs. */
 export type MediaId = `${MediaType}:${number}`;
-export interface CueProfile {
+export interface ViewendaProfile {
   id: string;
   name: string;
   region: string;

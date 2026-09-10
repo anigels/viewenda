@@ -2,7 +2,7 @@ import { useCallback, useState } from 'react';
 import { IonButton, IonButtons, IonContent, IonHeader, IonModal, IonTitle, IonToolbar } from '@ionic/react';
 import type { MediaReference } from '../../domain/models';
 import { tmdb, posterUrl } from '../../services/tmdb';
-import { useCue } from '../../hooks/useCue';
+import { useViewenda } from '../../hooks/useViewenda';
 import { useRemote } from '../../hooks/useRemote';
 import { RemoteFeedback } from '../../components/RemoteFeedback';
 import { WatchlistControls } from '../watchlist/WatchlistControls';
@@ -21,7 +21,7 @@ function Availability({ media, region, selected }: { media: MediaReference; regi
   </section>;
 }
 function DetailsContent({ media, onOverlayChange }: { media: MediaReference; onOverlayChange: (open: boolean) => void }) {
-  const { data } = useCue();
+  const { data } = useViewenda();
   const loader = useCallback(() => tmdb.details(media), [media]);
   const result = useRemote(loader);
   const poster = posterUrl(media.posterPath, 'w500');

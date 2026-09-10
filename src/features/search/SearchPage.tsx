@@ -11,9 +11,9 @@ import { tmdb } from '../../services/tmdb';
 import { mediaId, type MediaReference } from '../../domain/models';
 import { MediaDetails } from './MediaDetails';
 import { CardAvailability } from './CardAvailability';
-import { useCue } from '../../hooks/useCue';
+import { useViewenda } from '../../hooks/useViewenda';
 function Results({ query, open }: { query: string; open: (media: MediaReference) => void }) {
-  const { data } = useCue();
+  const { data } = useViewenda();
   const [page, setPage] = useState(1);
   const loader = useCallback(() => tmdb.multiSearch(query, page), [query, page]);
   const result = useRemote(loader);
@@ -23,7 +23,7 @@ function Results({ query, open }: { query: string; open: (media: MediaReference)
   </>}</>;
 }
 export function SearchPage() {
-  const { data } = useCue();
+  const { data } = useViewenda();
   const [query, setQuery] = useState('');
   const [debounced, setDebounced] = useState('');
   const [selected, setSelected] = useState<MediaReference | null>(null);

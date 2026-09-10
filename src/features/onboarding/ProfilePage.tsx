@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { IonButton, IonCheckbox, IonInput, IonItem, IonList, IonSearchbar } from '@ionic/react';
 import { Page } from '../../components/Page';
 import { RemoteFeedback } from '../../components/RemoteFeedback';
-import { useCue } from '../../hooks/useCue';
+import { useViewenda } from '../../hooks/useViewenda';
 import { useRemote } from '../../hooks/useRemote';
 import { tmdb } from '../../services/tmdb';
 function ProviderPicker({ region, selected, onChange, disabled }: { region: string; selected: number[]; onChange: (ids: number[]) => void; disabled: boolean }) {
@@ -20,7 +20,7 @@ function ProviderPicker({ region, selected, onChange, disabled }: { region: stri
   </section>;
 }
 export function ProfilePage() {
-  const { data, saveProfile } = useCue();
+  const { data, saveProfile } = useViewenda();
   const [name, setName] = useState('');
   const [region, setRegion] = useState('');
   const [selected, setSelected] = useState<number[]>([]);
@@ -37,7 +37,7 @@ export function ProfilePage() {
     catch { setMessage('Could not save. Check browser storage access and try again.'); }
     finally { setSaving(false); }
   }
-  return <Page title="Services / Profile"><p className="eyebrow">MAKE CUE YOURS</p><h1>Your corner of Cue.</h1><p className="lede">Your services, your region. No sign-in needed.</p>
+  return <Page title="Services / Profile"><p className="eyebrow">MAKE VIEWENDA YOURS</p><h1>Your corner of Viewenda.</h1><p className="lede">Your services, your region. No sign-in needed.</p>
     <form onSubmit={save}><IonList inset><IonItem><IonInput label="Profile name" labelPlacement="stacked" value={name} disabled={saving || !data} maxlength={80} autocomplete="nickname" onIonInput={e => setName(e.detail.value ?? '')} required /></IonItem>
       <IonItem><IonInput label="Region code" labelPlacement="stacked" helperText="Two-letter country code for streaming availability." value={region} disabled={saving || !data} maxlength={2} autocapitalize="characters" onIonInput={e => setRegion(e.detail.value ?? '')} required /></IonItem></IonList>
       {data && /^[A-Z]{2}$/.test(normalizedRegion) && <ProviderPicker key={normalizedRegion} region={normalizedRegion} selected={selected} onChange={setSelected} disabled={saving} />}

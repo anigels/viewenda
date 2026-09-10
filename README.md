@@ -74,7 +74,7 @@ A future `.github/workflows/ios-testflight.yml` will run on a macOS GitHub Actio
 
 ## Security and API behavior
 
-`VITE_TMDB_BEARER_TOKEN` is a **public browser build variable**: Vite bundles it into the client. Keeping `.env.local` out of Git prevents a source-control leak but does not make a deployed browser token secret. Proxy TMDB calls through a backend/serverless service before a production deployment that requires private credentials. Do not pass a production token to this web CI or commit build artifacts.
+`TMDB_BEARER_TOKEN` is server-only. The browser calls `/api/tmdb`; it does not receive the bearer token. Never use a VITE_ prefix for secrets. Do not pass a production token to web CI or commit build artifacts.
 
 The TMDB wrapper returns discriminated configuration/HTTP/network errors, uses a 15-second request timeout, and does not log credentials or raw remote errors. Multi-search excludes people. Provider methods require the caller's saved profile region; no UI-wide US assumption is used. Live TMDB responses require a user-supplied development token. Runtime checks validate consumed response fields, media IDs, search entries, provider arrays and TMDB watch-option URLs. Services/Profile includes the approved TMDB logo and API notice; availability views credit JustWatch.
 
@@ -109,7 +109,7 @@ notepad .env.local
 npm.cmd run dev
 ```
 
-Do not overwrite an existing configured .env.local. Set VITE_TMDB_BEARER_TOKEN to your TMDB API Read Access Token (not the v3 API key). Never paste it into chat or GitHub. Restart the development server after changing it. For a production preview, rebuild with npm.cmd run build before npm.cmd run preview. Keep the terminal open and use the port printed by Vite. Browser storage is per origin, so port 5173 and port 4173 have separate local profiles/watchlists.
+Do not overwrite an existing configured .env.local. Set TMDB_BEARER_TOKEN to your TMDB API Read Access Token (not the v3 API key). Never paste it into chat or GitHub. Restart the development server after changing it. For a production preview, rebuild with npm.cmd run build before npm.cmd run preview. Keep the terminal open and use the port printed by Vite. Browser storage is per origin, so port 5173 and port 4173 have separate local profiles/watchlists.
 
 ### Phase 2 verification
 
@@ -157,3 +157,9 @@ Use **Mark watched** on an episode plan in My Lineup or on **Next to watch**. Co
 Production previews and installed PWAs now offer **Update and reload** when an updated app is ready. **Later** dismisses the prompt for the current session. New updates are detected by the browser's service-worker lifecycle, including on page navigation/reload; there is no continuous polling. The first build containing this feature still needs to replace any older cached build before the prompt is available. Real device install and update-cycle QA remains necessary before release.
 
 Validation adds confirmation/cancel, save failure/retry, non-regressing episode progress, and update prompt interaction coverage.
+
+## Hosting preparation: server-side TMDB proxy
+
+Set TMDB_BEARER_TOKEN in ignored .env.local locally or in the hosting environment. Existing local VITE_TMDB_BEARER_TOKEN configuration must be renamed; rebuild afterward. Development and Vite preview register the API middleware. For a standalone Node 24 server, run npm run build then npm start. It serves dist and the API on 127.0.0.1:3000 by default; set PORT and HOST for your host. A static-only host will not support this API. No hosting provider has been selected or deployed.
+
+The proxy uses a fixed TMDB origin, an endpoint and parameter allowlist, GET-only requests, a 12-second timeout, and a 16-request concurrent limit per process. Upstream failures are sanitized and responses are not cached. Before public launch, configure HTTPS and hosting-level rate limits; the concurrency cap is not a per-user abuse quota. Native packaging still requires choosing a reachable API origin. A new service worker excludes /api/ routes from navigation fallback.

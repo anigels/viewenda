@@ -26,7 +26,7 @@ ion-buttons ion-button { margin: 0 8px; min-width: 48px; }
 .card-grid h2 { font-size: 18px !important; }
 .foundation-note { text-align: center; font-size: 11px; letter-spacing: 1px; margin-top: 26px; }
 .empty-card { text-align: center; margin-top: 24px; }
-.empty-card p { max-width: 490px; margin: 0 auto; }
+.empty-card ion-card-content p { max-width: 490px; margin: 0 auto; }
 .empty-icon { display: inline-flex; padding: 18px; border-radius: 20px; background: #332941; color: var(--ion-color-primary); font-size: 32px; margin: 14px 0; }
 ion-tab-bar { --border: 1px solid var(--viewenda-border); padding-top: 5px; }
 ion-tab-button { min-height: 56px; }

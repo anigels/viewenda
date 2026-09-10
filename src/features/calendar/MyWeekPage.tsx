@@ -1,3 +1,4 @@
+import { UpcomingTv } from './UpcomingTv';
 import { useState } from 'react';
 import { IonButton, useIonAlert } from '@ionic/react';
 import { Link } from 'react-router-dom';
@@ -54,6 +55,6 @@ export function MyWeekPage() {
         </article>)}
       </section>)}</div>
     </>}
-    <section className="quiet-section"><h2>Upcoming releases</h2><p>Automatic air and release dates are separate from your plans. Discovery is coming later, only where reliable dates exist. No episode times are estimated.</p></section>
+    {data && <UpcomingTv media={data.watchlist.map(item => item.media)} dates={dates} onShowWeek={date => { setAnchor(date); setEditing(null); }} />}
   </Page>;
 }

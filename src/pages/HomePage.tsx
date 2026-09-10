@@ -19,6 +19,6 @@ export function HomePage() {
       <IonCard routerLink="/watchlist"><IonCardContent><IonIcon icon={bookmarkOutline} /><h2>{data?.watchlist.length ?? 0} saved titles</h2><p>A home for your next great watch.</p></IonCardContent></IonCard>
       <IonCard routerLink="/my-week"><IonCardContent><IonIcon icon={calendarOutline} /><h2>{data?.watchPlans.filter(plan => plan.date >= localDate()).length ?? 0} plans ahead</h2><p>Make room for a good story.</p></IonCardContent></IonCard>
     </div>
-    <p className="foundation-note">PHASE 3 · Watch nights & weekly plans</p>
+    <p className="foundation-note">PHASE 4 · Your lineup & upcoming TV</p>
   </Page>;
 }

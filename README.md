@@ -80,7 +80,7 @@ The TMDB wrapper returns discriminated configuration/HTTP/network errors, uses a
 
 ## Intentionally unimplemented
 
-Automatic event discovery; authentication, cloud sync, conflict resolution, complete storage migrations, native packaging, final icons, deployment and TestFlight automation. Search results, title details and provider availability require a connection; saved watchlist titles, statuses and independent favorites remain usable without TMDB. Poster images are not cached for offline use.
+Full episode calendars and movie release discovery; authentication, cloud sync, conflict resolution, complete storage migrations, native packaging, final icons, deployment and TestFlight automation. Search results, title details and provider availability require a connection; saved watchlist titles, statuses and independent favorites remain usable without TMDB. Poster images are not cached for offline use.
 
 ## Verification and references
 
@@ -125,4 +125,13 @@ Plan Tonight starts a resumable draft. Select participants, add or remove local 
 
 My Lineup also lets you add a watchlist title directly, browse Monday–Sunday weeks, jump to a date, edit a plan's date/time, or confirm removal. Clearing the time leaves it unspecified. Plans retain their original Manual / Plan Tonight source and title snapshot, even if a title is later removed from the watchlist. Removing a plan removes its linked completed night but does not change watch status, favorites or saved titles. Home counts plans dated today or later. All participants and voting use this device; no invitations or cross-device sync are implied.
 
-Phase 3 tests cover vote replacement and ties, stale nominees and viewers, direct scheduling, date/time validation, calendar boundaries, independent watchlist state, rescheduling, removal and atomic-save failure/retry. Automatic air/release-date discovery remains separate and deferred.
+Phase 3 tests cover vote replacement and ties, stale nominees and viewers, direct scheduling, date/time validation, calendar boundaries, independent watchlist state, rescheduling, removal and atomic-save failure/retry. Automatic air-date discovery remains separate from saved viewing plans (see Phase 4).
+## Phase 4: upcoming TV air dates
+
+My Lineup shows TMDB-reported upcoming air dates for saved TV shows, separately from manually scheduled plans. All saved TV shows are checked, regardless of watch status; movies are excluded. A show contributes its next reported episode, or a future first-air date for its series premiere. Only valid calendar dates from today forward are surfaced. This is not a complete season/episode calendar and does not promise a regional streaming release or a time.
+
+Dates in the selected week appear as informational cards. Dates outside that week offer Show week. Expand No upcoming date reported to see shows without dates, and Shows not checked for lookup failures. Refresh air dates checks for updates. Four requests run concurrently; failures are isolated per show, and obsolete results cannot replace the current watchlist result. Changing weeks reuses the current report. Reports are in memory only; reloading checks again. Removing a show removes it from the report, while all saved plans remain independent. No watch status, votes, favorites, plans or local storage model are changed by discovery.
+
+The [TMDB TV-series details endpoint](https://developer.themoviedb.org/reference/tv-series-details) supplies next_episode_to_air and first_air_date. Times are never inferred. Dates are displayed as reported calendar days, without converting them to UTC or assuming a local streaming release. Automatic notifications, regional movie release discovery, full episode tracking, cloud sync and native distribution remain future work.
+
+Validation includes malformed/missing/past dates, same-day premieres, series versus later-season premieres, per-show failures, bounded requests, duplicate IDs, cancellation and preserved source data.

@@ -7,8 +7,13 @@ dist/
 .DS_Store
 coverage/
 *.tsbuildinfo
-ios/
-android/
+
+
 *.p12
 *.mobileprovision
 *.p8
+
+dist-native/
+
+*.jks
+*.keystore

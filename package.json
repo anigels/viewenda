@@ -13,7 +13,10 @@
     "build": "vite build --configLoader native",
     "preview": "vite preview --host 0.0.0.0 --configLoader native",
     "test": "vitest run --configLoader native",
-    "cap:sync": "npm run build && cap sync"
+    "build:native": "vite build --mode native --configLoader native",
+    "cap:sync": "npm run build:native && cap sync",
+    "cap:android": "cap open android",
+    "cap:ios": "cap open ios"
   },
   "dependencies": {
     "@capacitor/android": "^8.0.0",

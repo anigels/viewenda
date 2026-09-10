@@ -1,4 +1,6 @@
 import type { MediaReference, MediaType } from '../../domain/models';
+import { Capacitor } from '@capacitor/core';
+import { apiOrigin } from './apiOrigin';
 import { validDate } from '../../domain/planning';
 import type { EpisodeReference } from '../../domain/models';
 export type TmdbResult<T> = { ok: true; data: T } | { ok: false; error: { kind: 'configuration' | 'http' | 'network' | 'response'; message: string; status?: number } };
@@ -25,7 +27,9 @@ export class TmdbClient {
   constructor(private readonly token: string | null = null, private readonly fetcher: typeof fetch = (input, init) => fetch(input, init)) {}
   private async request<T>(path: string, params: Record<string, string>, valid: (value: unknown) => boolean): Promise<TmdbResult<T>> {
     if (this.token !== null && (!this.token.trim() || this.token === 'your_tmdb_read_access_token_here')) return { ok: false, error: { kind: 'configuration', message: 'The movie search connection has not been set up yet. Your saved watchlist is still available.' } };
-    const url = new URL(this.token === null ? '/api/tmdb' + path : 'https://api.themoviedb.org/3' + path, globalThis.location?.origin ?? 'http://localhost');
+    const origin = apiOrigin(import.meta.env.VITE_API_ORIGIN, Capacitor.isNativePlatform() || import.meta.env.MODE === 'native');
+    if (this.token === null && origin === null) return { ok: false, error: { kind: 'configuration', message: 'The movie connection is not configured for this app yet. Your saved titles remain available.' } };
+    const url = new URL(this.token === null ? (origin ?? '') + '/api/tmdb' + path : 'https://api.themoviedb.org/3' + path, globalThis.location?.origin ?? 'http://localhost');
     Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
     try {
       const response = await this.fetcher(url, { headers: { ...(this.token === null ? {} : { Authorization: 'Bearer ' + this.token }), Accept: 'application/json' }, signal: AbortSignal.timeout(15000) });

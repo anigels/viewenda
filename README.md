@@ -54,7 +54,7 @@ The icons are plain generated letter-C **placeholders**, not final branding. Rep
 
 ## Capacitor and iOS
 
-`capacitor.config.ts` is initialized with app name Viewenda, webDir `dist`, and bundle ID `com.anigels.viewenda`. This is the intended identity for future Apple App ID registration. iOS and Android packages are installed, but generated platform projects are intentionally not included. Native directories are ignored during this web foundation; revisit that policy when native projects are adopted.
+`capacitor.config.ts` is initialized with app name Viewenda, webDir `dist`, and bundle ID `com.anigels.viewenda`. This is the intended identity for future Apple App ID registration. iOS and Android packages are installed, but generated platform projects are included (see Native app foundation below). Build outputs and machine-specific native files remain ignored.
 
 On a Mac with compatible Xcode and Capacitor prerequisites:
 
@@ -163,3 +163,11 @@ Validation adds confirmation/cancel, save failure/retry, non-regressing episode 
 Set TMDB_BEARER_TOKEN in ignored .env.local locally or in the hosting environment. Existing local VITE_TMDB_BEARER_TOKEN configuration must be renamed; rebuild afterward. Development and Vite preview register the API middleware. For a standalone Node 24 server, run npm run build then npm start. It serves dist and the API on 127.0.0.1:3000 by default; set PORT and HOST for your host. A static-only host will not support this API. No hosting provider has been selected or deployed.
 
 The proxy uses a fixed TMDB origin, an endpoint and parameter allowlist, GET-only requests, a 12-second timeout, and a 16-request concurrent limit per process. Upstream failures are sanitized and responses are not cached. Before public launch, configure HTTPS and hosting-level rate limits; the concurrency cap is not a per-user abuse quota. Native packaging still requires choosing a reachable API origin. A new service worker excludes /api/ routes from navigation fallback.
+
+## Native app foundation (iPhone and Android)
+
+Mobile is the intended distribution. Generated android/ and ios/ projects are now tracked, with app ID com.anigels.viewenda. Native builds use dist-native, disable the PWA plugin/update hook, and bundle their interface locally. The web preview remains a development tool. Run npm run cap:sync to build and copy the mobile assets, then npm run cap:android or npm run cap:ios to open the IDE. Do not copy the web dist folder into native projects.
+
+Set VITE_API_ORIGIN to the HTTPS origin of your hosted Viewenda backend before building for a phone (no path, credentials or query). This is a public address, not a token. With no address, saved-data features work and search reports missing configuration. The backend allows the exact Capacitor iOS/Android WebView origins for GET responses; CORS is not authentication. The backend has not been deployed yet.
+
+The generated icons/splash assets are placeholders. Apple signing, Android release signing, store listings and device QA are not configured. iOS uses Swift Package Manager and must be built on macOS with Xcode. Android requires its SDK and a compatible JDK. Native storage currently uses the existing WebView localStorage adapter; cross-device sync and persistence hardening remain separate work. Test storage across app restarts/upgrades, Android back navigation, safe areas, keyboard behavior and external links on real devices before release.

@@ -25,6 +25,11 @@ export function upstreamUrl(raw: string): URL | null {
 export function createTmdbProxy(token: string, fetcher: typeof fetch = fetch) {
   let active = 0;
   return async (req: IncomingMessage, res: ServerResponse) => {
+    // Exact native WebView origins; CORS is not authentication or rate limiting.
+    if (req.headers?.origin && ['capacitor://localhost', 'https://localhost'].includes(req.headers.origin)) {
+      res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+      res.setHeader('Vary', 'Origin');
+    }
     const fail = (status: number) => { res.writeHead(status, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }); res.end(JSON.stringify({ error: 'Movie service unavailable' })); };
     if (req.method !== 'GET') { fail(405); return; }
     let url: URL | null;

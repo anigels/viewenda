@@ -1,14 +1,18 @@
+import { fileURLToPath } from 'node:url';
 import { defineConfig, loadEnv } from 'vite';
 import { createTmdbProxy } from './server/proxy.ts';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  build: { outDir: mode === 'native' ? 'dist-native' : 'dist' },
+  resolve: { alias: mode === 'native' ? [{ find: 'virtual:pwa-register/react', replacement: fileURLToPath(new URL('./src/components/nativePwa.ts', import.meta.url)) }] : [] },
   plugins: [react(), {
     name: 'viewenda-api',
     configureServer(server) { const proxy = createProxy(); server.middlewares.use((req, res, next) => req.url?.startsWith('/api/tmdb/') ? void proxy(req, res) : next()); },
     configurePreviewServer(server) { const proxy = createProxy(); server.middlewares.use((req, res, next) => req.url?.startsWith('/api/tmdb/') ? void proxy(req, res) : next()); },
   }, VitePWA({
+    disable: mode === 'native',
     registerType: 'prompt',
     injectRegister: 'auto',
     includeAssets: ['icons/apple-touch-icon.png'],
@@ -29,7 +33,7 @@ export default defineConfig({
     },
     devOptions: { enabled: false },
   })],
-});
+}));
 
 function createProxy() {
   return createTmdbProxy(process.env.TMDB_BEARER_TOKEN ?? loadEnv('development', process.cwd(), 'TMDB_').TMDB_BEARER_TOKEN ?? '');

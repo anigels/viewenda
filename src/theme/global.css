@@ -116,3 +116,7 @@ ion-input { --padding-top: 16px !important; --padding-bottom: 16px !important; }
 
 .upcoming-tv summary { min-height: 44px; padding: 12px 0; cursor: pointer; }
 .upcoming-tv .plan-entry a { display: inline-flex; align-items: center; min-height: 44px; }
+
+.episode-progress summary { min-height: 44px; padding: 12px 0; cursor: pointer; }
+.episode-progress { margin-top: 14px; }
+.episode-plan { margin: 12px 0; }

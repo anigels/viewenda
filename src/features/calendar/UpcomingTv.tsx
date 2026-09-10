@@ -1,3 +1,6 @@
+import { episodeLabel } from '../../domain/episodes';
+import type { WatchlistItem } from '../../domain/models';
+import { EpisodePlan } from '../../components/EpisodePlan';
 import { useEffect, useState } from 'react';
 import { IonButton } from '@ionic/react';
 import { Link } from 'react-router-dom';
@@ -6,7 +9,7 @@ import { localDate, readableDate } from '../../domain/planning';
 import { tmdb } from '../../services/tmdb';
 import { loadUpcoming, type UpcomingReport } from '../../services/tmdb/upcoming';
 
-export function UpcomingTv({ media, dates, onShowWeek }: { media: MediaReference[]; dates: string[]; onShowWeek: (date: string) => void }) {
+export function UpcomingTv({ media, dates, onShowWeek, items = [] }: { media: MediaReference[]; items?: WatchlistItem[]; dates: string[]; onShowWeek: (date: string) => void }) {
   const [attempt, setAttempt] = useState(0);
   const [result, setResult] = useState<{ key: string; report: UpcomingReport }>();
   const today = localDate();
@@ -24,7 +27,7 @@ export function UpcomingTv({ media, dates, onShowWeek }: { media: MediaReference
   const inWeek = report?.events.filter(event => dates.includes(event.date)) ?? [];
   const elsewhere = report?.events.filter(event => !dates.includes(event.date)) ?? [];
   return <section className="quiet-section upcoming-tv" aria-labelledby="upcoming-tv-heading">
-    <h2 id="upcoming-tv-heading">Upcoming TV air dates</h2>
+    <h2 id="upcoming-tv-heading">Upcoming TV air dates</h2><p>See your next unwatched episode and update progress in <Link to="/watchlist">Watchlist → Episodes &amp; progress</Link>.</p>
     <p>Reported dates for your saved shows, separate from your viewing plans. These are not confirmed streaming release dates for your services or region. Dates may change; times are not supplied.</p>
     {shows === '[]' ? <p><Link to="/search">Save a TV show</Link> to see its next reported air date.</p> : <>
       <IonButton fill="outline" disabled={!report} onClick={() => setAttempt(value => value + 1)}>Refresh air dates</IonButton>
@@ -33,8 +36,9 @@ export function UpcomingTv({ media, dates, onShowWeek }: { media: MediaReference
         {!inWeek.length && <p>No upcoming air dates reported for this week in the shows checked successfully.</p>}
         {inWeek.map(event => <article className="plan-entry" key={event.media.tmdbId}>
           <p className="eyebrow">{readableDate(event.date)}, {event.date.slice(0, 4)} · {event.eventType === 'premiere' ? 'SERIES PREMIERE' : 'NEXT EPISODE'}</p>
-          <h4>{event.media.title}</h4>
+          <h4>{event.media.title}</h4><p>{(() => { const progress = items.find(item => item.media.tmdbId === event.media.tmdbId && item.media.mediaType === 'tv')?.lastCompletedEpisode; return progress === undefined ? 'Progress not set' : progress === null ? 'Not started' : 'Last completed: ' + episodeLabel(progress); })()}</p>
           {event.episode && <p>Season {event.episode.season} · Episode {event.episode.number}</p>}
+          {event.episode && event.episode.season > 0 && <EpisodePlan media={event.media} episode={{ ...event.episode, airDate: event.date }} />}
           <a href={'https://www.themoviedb.org/tv/' + event.media.tmdbId} target="_blank" rel="noreferrer">Check on TMDB</a>
         </article>)}
         {!!elsewhere.length && <details><summary>Reported dates outside this week ({elsewhere.length})</summary>{elsewhere.map(event => <p key={event.media.tmdbId}>{event.media.title} · {readableDate(event.date)}, {event.date.slice(0, 4)} <IonButton fill="clear" aria-label={'Show week for ' + event.media.title} onClick={() => onShowWeek(event.date)}>Show week</IonButton></p>)}</details>}

@@ -1,3 +1,4 @@
+import { EpisodeProgress } from './EpisodeProgress';
 import { useState } from 'react';
 import { IonButton, IonSelect, IonSelectOption, IonToggle, useIonAlert } from '@ionic/react';
 import { mediaId, watchStatuses, type MediaReference, type WatchStatus } from '../../domain/models';
@@ -22,8 +23,9 @@ export function WatchlistControls({ media, onOverlayChange }: { media: MediaRefe
         if (watchStatuses.includes(e.detail.value as WatchStatus)) void change(items => editTitle(items, media, { status: e.detail.value }));
       }}>{watchStatuses.map(status => <IonSelectOption key={status} value={status}>{status}</IonSelectOption>)}</IonSelect>
       <IonToggle checked={item.isFavorite} disabled={busy} onIonChange={e => void change(items => editTitle(items, media, { isFavorite: e.detail.checked }))}>Favorite</IonToggle>
+      {item.media.mediaType === 'tv' && <EpisodeProgress item={item} />}
       <IonButton fill="clear" color="medium" disabled={busy} onClick={() => void presentAlert({
-        onWillPresent: () => onOverlayChange?.(true), onDidDismiss: () => onOverlayChange?.(false), header: 'Remove from watchlist?', message: 'This removes its saved status and favorite setting. You can add the title again later.',
+        onWillPresent: () => onOverlayChange?.(true), onDidDismiss: () => onOverlayChange?.(false), header: 'Remove from watchlist?', message: 'This removes its saved status, episode progress and favorite setting. You can add the title again later.',
         buttons: [{ text: 'Keep title', role: 'cancel' }, { text: 'Remove', role: 'destructive', handler: () => { void change(items => items.filter(item => mediaId(item.media) !== mediaId(media))); } }],
       })}>Remove title</IonButton>
     </> : <IonButton expand="block" disabled={!data || busy} onClick={() => void change(items => addTitle(items, media))}>{busy ? 'Saving…' : 'Add to watchlist'}</IonButton>}

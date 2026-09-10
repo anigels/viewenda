@@ -171,3 +171,7 @@ Mobile is the intended distribution. Generated android/ and ios/ projects are no
 Set VITE_API_ORIGIN to the HTTPS origin of your hosted Viewenda backend before building for a phone (no path, credentials or query). This is a public address, not a token. With no address, saved-data features work and search reports missing configuration. The backend allows the exact Capacitor iOS/Android WebView origins for GET responses; CORS is not authentication. The backend has not been deployed yet.
 
 The generated icons/splash assets are placeholders. Apple signing, Android release signing, store listings and device QA are not configured. iOS uses Swift Package Manager and must be built on macOS with Xcode. Android requires its SDK and a compatible JDK. Native storage currently uses the existing WebView localStorage adapter; cross-device sync and persistence hardening remain separate work. Test storage across app restarts/upgrades, Android back navigation, safe areas, keyboard behavior and external links on real devices before release.
+
+## GitHub mobile release workflows
+
+Android and iOS builds can run on GitHub Actions using the same pattern as PickleballTeamFlow. See [mobile build setup](docs/mobile-builds.md) for repository variables, signing secrets and manual artifact/upload controls. Local platform tooling is optional for these cloud builds. No signed build or store upload has been run yet.
